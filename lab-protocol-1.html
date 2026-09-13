@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZnO Recovery Protocol — JAMP Industries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ZnO RECOVERY PROTOCOL — JAMP INDUSTRIES
+   1. Tokens         5. Sidebar (steps)
+   2. Base / layout  6. Centre panel
+   3. Header         7. Right panel
+   4. Pipeline       8. Modal  9. Responsive
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. TOKENS ────────────────────────────────────────────── */
+:root{
+  --bg:#060b14; --card:#0d1526; --card2:#0f1a2e;
+  --cyan:#00f5ff; --cdim:rgba(0,245,255,.10); --cglow:rgba(0,245,255,.28);
+  --orange:#ff6b35; --odim:rgba(255,107,53,.10);
+  --green:#39ff14; --gdim:rgba(57,255,20,.08);
+  --yellow:#ffd600; --red:#ff4d6d;
+  --muted:#7a8799; --text:#c2cedd; --white:#eef4ff;
+  --border:rgba(0,245,255,.13); --lborder:#1a2840;
+  --fd:'Space Grotesk',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+  --r-sm:6px; --r-md:9px; --r-lg:13px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── 2. BASE / LAYOUT ─────────────────────────────────────── */
+html{height:100%}
+body{
+  height:100vh; display:flex; flex-direction:column;
+  font-family:var(--fd); background:var(--bg); color:var(--text);
+  overflow:hidden; position:relative; -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.scanline{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+
+.layout{
+  position:relative;z-index:10;flex:1;min-height:0;
+  display:grid;grid-template-columns:232px minmax(0,1fr) 262px;
+}
+.scroll::-webkit-scrollbar{width:4px;height:4px}
+.scroll::-webkit-scrollbar-thumb{background:var(--lborder);border-radius:2px}
+.scroll::-webkit-scrollbar-thumb:hover{background:var(--border)}
+
+/* ── 3. HEADER ────────────────────────────────────────────── */
+.hdr{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;padding:9px 20px;
+  background:rgba(6,11,20,.97);border-bottom:1px solid var(--border)}
+.hl{display:flex;align-items:center;gap:11px}
+.logo{display:flex;filter:drop-shadow(0 0 7px var(--cyan));animation:hpulse 3.4s ease-in-out infinite}
+@keyframes hpulse{0%,100%{filter:drop-shadow(0 0 5px var(--cyan))}50%{filter:drop-shadow(0 0 13px var(--cyan))}}
+.co{font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--cyan);display:block}
+.st{font-size:15px;font-weight:700;color:var(--white);line-height:1.2}
+.hr2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{display:flex;flex-direction:column;gap:1px;text-align:right}
+.bl{font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--muted)}
+.bv{font-family:var(--fm);font-size:11.5px;font-weight:700;color:var(--white)}
+.bv.g{color:var(--green)}
+.fbtn{background:transparent;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--muted);
+  font-family:var(--fm);font-size:8.5px;letter-spacing:1px;padding:6px 11px;cursor:pointer;
+  transition:border-color .18s,color .18s,background .18s;white-space:nowrap}
+.fbtn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.sdwrap{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.3);
+  border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s ease-in-out infinite}
+.sd.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.sd.running{background:var(--orange);box-shadow:0 0 8px var(--orange)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.slbl{font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--green)}
+.slbl.active{color:var(--cyan)} .slbl.running{color:var(--orange)}
+
+.ffwrap{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.3);
+  border:1px solid var(--border);border-radius:20px;padding:4px 6px}
+.fflbl{font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--muted);padding-left:5px;white-space:nowrap}
+.ffbtn{font-family:var(--fm);font-size:9px;font-weight:700;color:var(--muted);background:transparent;
+  border:1px solid transparent;border-radius:14px;padding:4px 9px;cursor:pointer;transition:.16s;white-space:nowrap}
+.ffbtn:hover{color:var(--text)}
+.ffbtn.on{color:var(--bg);background:var(--orange);border-color:var(--orange);box-shadow:0 0 10px rgba(255,107,53,.4)}
+
+/* ── 4. PIPELINE ──────────────────────────────────────────── */
+.pipe{position:relative;z-index:10;padding:9px 20px 7px;background:rgba(6,11,20,.75);border-bottom:1px solid var(--border)}
+.pipebar{width:100%;height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-bottom:6px;position:relative;overflow:hidden}
+.pipefill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--orange));
+  border-radius:2px;transition:width .6s ease;box-shadow:0 0 8px var(--cglow)}
+.pipelabels{display:flex;justify-content:space-between;gap:4px;font-family:var(--fm);font-size:7px;color:var(--muted);overflow-x:auto;scrollbar-width:none}
+.pipelabels::-webkit-scrollbar{display:none}
+.pipelabels span{white-space:nowrap;transition:color .2s}
+.pipelabels span.now{color:var(--cyan)}
+.pipelabels span.ok{color:var(--green)}
+
+/* ── 5. LEFT SIDEBAR ──────────────────────────────────────── */
+.lsb{border-right:1px solid var(--border);overflow-y:auto;padding:10px 8px;background:rgba(6,11,20,.5)}
+.sitem{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:8px 9px;border-radius:var(--r-md);
+  border:1px solid transparent;cursor:pointer;transition:border-color .18s,background .18s,transform .18s;margin-bottom:4px}
+.sitem.locked{opacity:.4;cursor:not-allowed}
+.sitem.unlocked{border-color:var(--border);background:rgba(0,245,255,.02)}
+.sitem.unlocked:hover{border-color:var(--cyan);background:var(--cdim);transform:translateX(3px)}
+.sitem.active{border-color:var(--cyan);background:var(--cdim);box-shadow:0 0 14px rgba(0,245,255,.07)}
+.sitem.done{border-color:rgba(57,255,20,.25);background:var(--gdim)}
+.sitem.running{border-color:var(--orange);background:var(--odim);animation:tpulse 2.2s ease-in-out infinite}
+@keyframes tpulse{0%,100%{box-shadow:0 0 5px rgba(255,107,53,.1)}50%{box-shadow:0 0 16px rgba(255,107,53,.32)}}
+.sirow{display:flex;align-items:center;gap:8px;width:100%}
+.snb{width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:10px;font-weight:700;flex-shrink:0;
+  border:1px solid var(--lborder);background:rgba(0,0,0,.3);color:var(--muted);transition:.18s}
+.sitem.unlocked .snb,.sitem.active .snb{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.07)}
+.sitem.done .snb{border-color:var(--green);color:var(--bg);background:var(--green)}
+.sitem.running .snb{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07)}
+.sname{font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sitem.locked .sname{color:var(--muted)}
+.smeta{font-family:var(--fm);font-size:8px;color:var(--muted);margin-top:1px}
+.sitem.running .smeta{color:var(--orange)}
+.slock{font-size:10px;flex-shrink:0}
+.mt{font-family:var(--fm);font-size:9px;color:var(--orange);font-weight:700;flex-shrink:0}
+.subdots{display:flex;gap:4px;padding-left:4px;margin-top:2px}
+.subdots i{width:6px;height:6px;border-radius:50%;background:var(--lborder);flex-shrink:0}
+.subdots i.done{background:var(--green)} .subdots i.active{background:var(--cyan)} .subdots i.timer{background:var(--orange)}
+
+/* ── 6. CENTRE PANEL ──────────────────────────────────────── */
+.center{overflow-y:auto;padding:18px 20px 40px;display:flex;flex-direction:column;gap:14px}
+.center>*{max-width:780px;width:100%;margin-inline:auto}
+
+/* intro */
+.intro{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 18px;gap:16px}
+.ihex{filter:drop-shadow(0 0 16px rgba(0,245,255,.35));animation:ispin 26s linear infinite}
+@keyframes ispin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.ititle{font-size:20px;font-weight:700;color:var(--white)}
+.isub{font-size:12.5px;color:var(--muted);max-width:460px;line-height:1.7}
+.istats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.istat{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border:1px solid var(--border);
+  border-radius:var(--r-md);background:var(--card);min-width:84px}
+.isv{font-family:var(--fm);font-size:17px;font-weight:700;color:var(--cyan)}
+.isl{font-size:9px;color:var(--muted);letter-spacing:.6px}
+.startbtn{display:inline-flex;align-items:center;gap:9px;padding:12px 30px;background:transparent;
+  border:1.5px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:var(--fm);
+  font-size:12px;font-weight:700;letter-spacing:3px;cursor:pointer;position:relative;overflow:hidden;
+  transition:color .25s,box-shadow .25s;isolation:isolate}
+.startbtn::before{content:'';position:absolute;inset:0;background:var(--cyan);transform:translateX(-101%);transition:transform .3s;z-index:-1}
+.startbtn:hover{color:var(--bg);box-shadow:0 0 24px var(--cglow)}
+.startbtn:hover::before{transform:translateX(0)}
+.startbtn:disabled{opacity:.35;cursor:not-allowed}
+.startbtn:disabled:hover{color:var(--cyan);box-shadow:none}
+.startbtn:disabled:hover::before{transform:translateX(-101%)}
+
+/* setup */
+.setupwrap{display:flex;flex-direction:column;gap:14px;padding:4px 0 24px;max-width:640px}
+.setuphdr{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 8px 2px}
+.setuptitle{font-size:17px;font-weight:700;color:var(--white)}
+.setupsub{font-size:11.5px;color:var(--muted);max-width:460px;line-height:1.65}
+.setupcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:15px 17px;display:flex;flex-direction:column;gap:12px}
+.setupcard-title{font-family:var(--fm);font-size:8px;letter-spacing:2.5px;color:var(--cyan);display:flex;align-items:center;gap:7px}
+.batchrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+.field-lbl{font-family:var(--fm);font-size:7px;letter-spacing:1.5px;color:var(--muted)}
+.field input{background:rgba(0,0,0,.35);border:1px solid var(--lborder);border-radius:7px;color:var(--white);
+  font-family:var(--fm);font-size:14px;font-weight:700;padding:9px 11px;width:100%;outline:none;transition:.18s}
+.field input:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,245,255,.15)}
+.unitgroup{display:flex;gap:4px;background:rgba(0,0,0,.3);border:1px solid var(--lborder);border-radius:8px;padding:3px}
+.unitbtn{font-family:var(--fm);font-size:10px;font-weight:700;color:var(--muted);background:transparent;
+  border:none;border-radius:var(--r-sm);padding:7px 13px;cursor:pointer;transition:.16s}
+.unitbtn:hover{color:var(--text)}
+.unitbtn.on{color:var(--bg);background:var(--cyan);box-shadow:0 0 9px var(--cglow)}
+.xrfgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.xrfitem{display:flex;flex-direction:column;gap:4px}
+.xrfitem input{background:rgba(0,0,0,.3);border:1px solid var(--lborder);border-radius:var(--r-sm);color:var(--text);
+  font-family:var(--fm);font-size:12px;font-weight:700;padding:7px 9px;width:100%;outline:none;transition:.16s}
+.xrfitem input:focus{border-color:var(--cyan)}
+.xrfitem input:disabled{opacity:.45;cursor:not-allowed}
+.xrfitem-lbl{font-size:10px;color:var(--muted)}
+.xrftotal{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:7px;
+  border:1px solid var(--border);background:rgba(0,245,255,.03);font-family:var(--fm);font-size:10px;margin-top:2px}
+.xrftotal.warn{border-color:rgba(255,214,0,.35);background:rgba(255,214,0,.05)}
+.xrftotal.warn .xrftotal-val{color:var(--yellow)}
+.xrftotal-lbl{color:var(--muted);letter-spacing:1px}
+.xrftotal-val{color:var(--green);font-weight:700}
+.setuptoggle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.setuptoggle-t{font-size:11.5px;font-weight:600;color:var(--text)}
+.setuptoggle-s{font-size:9.5px;color:var(--muted)}
+.swtch{width:38px;height:21px;border-radius:11px;background:rgba(255,255,255,.08);border:1px solid var(--lborder);
+  position:relative;cursor:pointer;flex-shrink:0;transition:.2s}
+.swtch::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--muted);transition:.2s}
+.swtch.on{background:rgba(0,245,255,.18);border-color:var(--cyan)}
+.swtch.on::after{left:19px;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.calcpreview{background:var(--card2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.calcpreview-title{font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--muted)}
+.calcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.calcitem{display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:rgba(0,0,0,.25);
+  border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.03)}
+.calcitem-l{font-size:8.5px;color:var(--muted)}
+.calcitem-v{font-family:var(--fm);font-size:12.5px;font-weight:700;color:var(--cyan)}
+.calcitem-v.g{color:var(--green)} .calcitem-v.o{color:var(--orange)}
+.fieldwarn{font-size:9.5px;color:var(--yellow);display:flex;align-items:center;gap:5px}
+
+/* step header */
+.schdr{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.sch-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;
+  background:linear-gradient(90deg,rgba(0,245,255,.07),transparent);border-bottom:1px solid var(--border)}
+.scnum{font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--cyan);
+  border:1px solid var(--border);border-radius:5px;padding:3px 8px}
+.sctitle{font-size:15px;font-weight:700;color:var(--white);flex:1;min-width:160px}
+.scrx{font-family:var(--fm);font-size:10px;color:var(--orange);background:var(--odim);
+  border:1px solid rgba(255,107,53,.25);border-radius:5px;padding:4px 9px}
+.scdone-badge{font-family:var(--fm);font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--bg);
+  background:var(--green);border-radius:4px;padding:3px 7px}
+.sch-body{padding:14px 16px;display:flex;flex-direction:column;gap:13px}
+.sc-obj{font-size:12.5px;line-height:1.72;color:var(--text);max-width:66ch}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.spec{display:flex;flex-direction:column;gap:3px;padding:9px 11px;background:rgba(0,0,0,.25);
+  border:1px solid var(--lborder);border-radius:var(--r-sm)}
+.spl{font-size:8.5px;color:var(--muted)}
+.spv{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--white)}
+.spv.hot{color:var(--orange)} .spv.warn{color:var(--yellow)}
+
+/* sub-step path */
+.subpath-wrap{display:flex;flex-direction:column;gap:10px}
+.subpath-title{font-family:var(--fm);font-size:8px;letter-spacing:2.5px;color:var(--cyan)}
+.subpath{display:flex;flex-direction:column}
+.subnode{position:relative;display:flex;gap:12px;padding:0 0 12px 0}
+.sn-line{position:absolute;left:17px;top:36px;bottom:0;width:1px;background:var(--lborder)}
+.subnode:last-child .sn-line{display:none}
+.subnode.ss-done .sn-line{background:rgba(57,255,20,.3)}
+.sn-icon{width:35px;height:35px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;
+  border-radius:50%;border:1px solid var(--lborder);background:var(--card);z-index:1;transition:.2s}
+.subnode.ss-done .sn-icon{border-color:var(--green);background:var(--gdim)}
+.subnode.ss-active .sn-icon{border-color:var(--cyan);background:var(--cdim);box-shadow:0 0 14px var(--cglow)}
+.subnode.ss-timer .sn-icon{border-color:var(--orange);background:var(--odim);animation:tpulse 2.2s ease-in-out infinite}
+.subnode.ss-locked{opacity:.42}
+.sn-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding:4px 0 0}
+.sn-label{font-family:var(--fm);font-size:7.5px;letter-spacing:1.6px;color:var(--muted)}
+.subnode.ss-done .sn-label{color:var(--green)}
+.subnode.ss-active .sn-label{color:var(--cyan)}
+.subnode.ss-timer .sn-label{color:var(--orange)}
+.sn-title{font-size:12.5px;font-weight:600;color:var(--white)}
+.subnode.ss-locked .sn-title{color:var(--muted)}
+.sn-desc{font-size:11.5px;line-height:1.65;color:var(--text);max-width:62ch}
+.sn-timer{display:flex;align-items:baseline;gap:8px;margin-top:3px}
+.sn-timer-val{font-family:var(--fm);font-size:21px;font-weight:700;color:var(--orange);letter-spacing:1px}
+.sn-timer-lbl{font-family:var(--fm);font-size:7.5px;letter-spacing:1.6px;color:var(--muted)}
+.sn-progwrap{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:2px;max-width:320px}
+.sn-prog{height:100%;width:0;background:var(--orange);border-radius:2px;transition:width .4s linear}
+.sn-btn{align-self:flex-start;margin-top:5px;padding:8px 15px;border-radius:var(--r-sm);cursor:pointer;
+  font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.6px;
+  color:var(--bg);background:var(--cyan);border:1px solid var(--cyan);transition:.18s}
+.sn-btn:hover{box-shadow:0 0 16px var(--cglow);transform:translateY(-1px)}
+
+/* action buttons / cards */
+.actbtn{width:100%;padding:13px 18px;border-radius:var(--r-md);cursor:pointer;
+  font-family:var(--fm);font-size:11.5px;font-weight:700;letter-spacing:2px;
+  color:var(--cyan);background:var(--cdim);border:1.5px solid var(--cyan);transition:.2s}
+.actbtn:hover{color:var(--bg);background:var(--cyan);box-shadow:0 0 22px var(--cglow)}
+.donecard{display:flex;align-items:center;gap:11px;padding:9px 13px;border-radius:var(--r-md);
+  border:1px solid rgba(57,255,20,.22);background:var(--gdim)}
+.dcheck{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:var(--green);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.dname{font-size:11.5px;font-weight:600;color:var(--text)}
+.dmeta{font-family:var(--fm);font-size:8px;letter-spacing:1.4px;color:var(--green);margin-top:1px}
+.lockcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
+  padding:44px 20px;border:1px dashed var(--lborder);border-radius:var(--r-lg);background:rgba(0,0,0,.2)}
+.lockbig{font-size:30px;opacity:.6}
+.locktitle{font-size:14px;font-weight:700;color:var(--text)}
+.locksub{font-size:11.5px;color:var(--muted)}
+.completebanner{display:flex;flex-direction:column;align-items:center;text-align:center;gap:13px;
+  padding:30px 22px;border:1px solid rgba(57,255,20,.3);border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(57,255,20,.07),rgba(0,0,0,.2))}
+.cbicon{font-size:34px;color:var(--green);filter:drop-shadow(0 0 14px rgba(57,255,20,.5))}
+.cbtitle{font-size:16px;font-weight:700;color:var(--white)}
+.cbsub{font-size:12px;color:var(--muted);max-width:440px;line-height:1.65}
+.cbstats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.cbstat{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border:1px solid var(--border);
+  border-radius:var(--r-md);background:var(--card);min-width:96px}
+.cbsv{font-family:var(--fm);font-size:15px;font-weight:700;color:var(--green)}
+.cbsl{font-size:9px;color:var(--muted)}
+.restartbtn{padding:10px 24px;border-radius:8px;cursor:pointer;font-family:var(--fm);font-size:10.5px;
+  font-weight:700;letter-spacing:2px;color:var(--muted);background:transparent;border:1px solid var(--lborder);transition:.18s}
+.restartbtn:hover{color:var(--cyan);border-color:var(--cyan)}
+
+/* ── 7. RIGHT PANEL ───────────────────────────────────────── */
+.rp{border-left:1px solid var(--border);background:rgba(6,11,20,.5);display:flex;flex-direction:column;min-height:0}
+.rphdr{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.rplbl{font-family:var(--fm);font-size:7.5px;letter-spacing:2.5px;color:var(--cyan)}
+.rpbody{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 24px;display:flex;flex-direction:column;gap:11px}
+.pgroup,.phl{display:flex;flex-direction:column;gap:6px}
+.ptitle,.phlt{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;color:var(--muted);margin-bottom:1px}
+.phlt{color:var(--cyan)}
+.prow{display:flex;align-items:baseline;justify-content:space-between;gap:9px;font-size:10.5px}
+.pk{color:var(--muted);min-width:0}
+.pv{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
+.pv.c{color:var(--cyan)} .pv.g{color:var(--green)}
+.pdiv{height:1px;background:var(--lborder);margin:2px 0}
+.subprog-block{display:flex;flex-direction:column;gap:7px}
+.subprog-title{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;color:var(--muted);margin-bottom:2px}
+.subprog-item{display:flex;align-items:flex-start;gap:8px}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:var(--lborder);flex-shrink:0;margin-top:4px}
+.sp-dot.done{background:var(--green)} 
+.sp-dot.active{background:var(--cyan);box-shadow:0 0 7px var(--cyan)}
+.sp-dot.timer{background:var(--orange);box-shadow:0 0 7px var(--orange)}
+.sp-name{font-size:10px;line-height:1.45;color:var(--text)}
+.sp-name.locked{color:var(--muted)}
+
+/* ── 8. MODAL ─────────────────────────────────────────────── */
+.mov{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(3,6,12,.84);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.mov.open{display:flex}
+.mbox{position:relative;width:100%;max-width:520px;max-height:84vh;overflow-y:auto;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;
+  box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.mcl{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:var(--r-sm);cursor:pointer;
+  background:transparent;border:1px solid var(--lborder);color:var(--muted);font-size:12px;transition:.18s}
+.mcl:hover{color:var(--cyan);border-color:var(--cyan)}
+.ftable{width:100%;border-collapse:collapse;font-family:var(--fm);font-size:11px;margin-top:4px}
+.ftable th{text-align:left;padding:7px 9px;font-size:8px;letter-spacing:1.6px;color:var(--cyan);
+  border-bottom:1px solid var(--border);font-weight:700}
+.ftable td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text)}
+.ftable td:nth-child(2),.ftable td:nth-child(3),.ftable th:nth-child(2),.ftable th:nth-child(3){text-align:right}
+.ftable tr:last-child td{border-bottom:none;color:var(--white)}
+
+/* ── 9. RESPONSIVE ────────────────────────────────────────── */
+@media (max-width:1080px){
+  .layout{grid-template-columns:200px minmax(0,1fr) 230px}
+  .xrfgrid,.calcgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:960px){
+  body{height:auto;min-height:100vh;overflow:auto}
+  .layout{display:flex;flex-direction:column}
+  .lsb{border-right:none;border-bottom:1px solid var(--border);max-height:230px}
+  .rp{border-left:none;border-top:1px solid var(--border)}
+  .rpbody{max-height:340px}
+  .center{padding:16px 14px 32px}
+  .hdr{padding:9px 14px}
+  .pipe{padding:8px 14px 6px}
+}
+@media (max-width:560px){
+  .xrfgrid,.calcgrid{grid-template-columns:1fr 1fr}
+  .st{font-size:13.5px}
+  .badge{display:none}
+  .sn-desc,.sc-obj{font-size:11.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+<div class="scanline" aria-hidden="true"></div>
+
+<!-- ══ HEADER ══ -->
+<header class="hdr">
+  <div class="hl">
+    <div class="logo">
+      <svg viewBox="0 0 40 46" width="30" height="34" aria-hidden="true">
+        <polygon points="20,2 38,12 38,34 20,44 2,34 2,12" fill="none" stroke="#00f5ff" stroke-width="1.5"/>
+        <text x="50%" y="56%" text-anchor="middle" fill="#00f5ff" font-size="10" font-family="monospace" dominant-baseline="middle">Zn</text>
+      </svg>
+    </div>
+    <div><span class="co">JAMP INDUSTRIES</span><span class="st">ZnO Recovery Protocol</span></div>
+  </div>
+  <div class="hr2">
+    <div class="badge" id="feedBasisBadge"><span class="bl">FEED BASIS</span><span class="bv">50 g zinc ash</span></div>
+    <div class="badge"><span class="bl">TARGET PURITY</span><span class="bv g">97–99%</span></div>
+    <button class="fbtn" type="button" onclick="openModal()">Feed table</button>
+    <div class="ffwrap" title="Demo speed — speeds up all wait timers">
+      <span class="fflbl">DEMO SPEED</span>
+      <button class="ffbtn on" type="button" data-ff="1" onclick="setFF(1)">1×</button>
+      <button class="ffbtn" type="button" data-ff="60" onclick="setFF(60)">60×</button>
+      <button class="ffbtn" type="button" data-ff="300" onclick="setFF(300)">300×</button>
+      <button class="ffbtn" type="button" data-ff="9999" onclick="setFF(9999)">MAX</button>
+    </div>
+    <div class="sdwrap"><span class="sd" id="sd"></span><span class="slbl" id="slbl">READY</span></div>
+  </div>
+</header>
+
+<!-- ══ PIPELINE ══ -->
+<div class="pipe">
+  <div class="pipebar"><div class="pipefill" id="pf"></div></div>
+  <div class="pipelabels" id="pl"></div>
+</div>
+
+<!-- ══ LAYOUT ══ -->
+<div class="layout">
+  <aside class="lsb scroll" id="lsb"></aside>
+  <section class="center scroll" id="center"></section>
+  <aside class="rp">
+    <div class="rphdr"><span class="rplbl">PARAMETERS &amp; PROGRESS</span></div>
+    <div class="rpbody scroll" id="rpbody"></div>
+  </aside>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="mov" id="mov" onclick="closeMOuter(event)">
+  <div class="mbox scroll">
+    <button class="mcl" type="button" onclick="closeM()" aria-label="Close">✕</button>
+    <div id="mcon"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   1. REFERENCE DATA   2. SCALING   3. STEP BUILDER
+   4. STATE            5. RENDER    6. PROCESS CONTROL
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. REFERENCE DATA ────────────────────────────────────── */
+var DEFAULT_XRF = {ZnO:69.40, Cl:28.80, Fe2O3:0.500, Al2O3:0.379, SiO2:0.125, CaO:0.085, PbO:0.178, SO3:0.060, K2O:0.005};
+var XRF_LABELS  = {ZnO:'ZnO', Cl:'Cl salts', Fe2O3:'Fe₂O₃', Al2O3:'Al₂O₃', SiO2:'SiO₂', CaO:'CaO', PbO:'PbO', SO3:'SO₃', K2O:'K₂O'};
+var BASE_BATCH_G = 50;            /* reference batch the recipe was tuned for */
+
+var REF = {
+  washWaterMLPerWash:500, washWaterTotalML:1000,
+  acidVolMLper98pct:25.5, acidDiluteWaterML:250,
+  naohFeRemovalG:1.5, na2so4G:0.5,
+  naohZnPrecipG:34.1, naohZnPrecipSolnML:340,
+  znOH2WetG:42.3, cakeWashWaterPerRound:150, cakeWashRounds:3,
+  dryExpectedLowG:40, dryExpectedHighG:42,
+  znoYieldLowG:31.2, znoYieldHighG:33.0,
+  feRemovedG:0.29, pbRemovedG:0.10,
+  filterResidueLowG:0.3, filterResidueHighG:0.5
+};
+
+/* ── 2. BATCH STATE + SCALING ─────────────────────────────── */
+var BATCH = {configured:false, massG:BASE_BATCH_G, unit:'g', xrf:Object.assign({},DEFAULT_XRF), useCustomXrf:false, scale:1};
+
+function unitToGrams(v,u){v=parseFloat(v)||0;return u==='kg'?v*1000:u==='t'?v*1e6:v;}
+function gramsToUnit(g,u){return u==='kg'?g/1000:u==='t'?g/1e6:g;}
+function fmtNum(n,dp){dp=dp===undefined?2:dp;if(!isFinite(n))return '0';
+  return (Math.round(n*Math.pow(10,dp))/Math.pow(10,dp)).toString();}
+function fmtMass(g){if(g>=1e6)return fmtNum(g/1e6,2)+' t';if(g>=1000)return fmtNum(g/1000,2)+' kg';return fmtNum(g,g<10?2:1)+' g';}
+function fmtVol(ml){if(ml>=1e6)return fmtNum(ml/1e6,2)+' kL';if(ml>=1000)return fmtNum(ml/1000,2)+' L';return fmtNum(ml,ml<10?2:0)+' mL';}
+function activeXrf(){return BATCH.useCustomXrf?BATCH.xrf:DEFAULT_XRF;}
+function xrfTotalPct(){var t=0,x=activeXrf();for(var k in x)t+=parseFloat(x[k])||0;return t;}
+
+function getScaledRecipe(){
+  BATCH.scale = BATCH.massG / BASE_BATCH_G;
+  var s = BATCH.scale;
+  var znoPct = parseFloat(activeXrf().ZnO) || DEFAULT_XRF.ZnO;
+  var p = znoPct / DEFAULT_XRF.ZnO;            /* reagent demand tracks ZnO grade */
+  return {
+    massG:BATCH.massG, znoPct:znoPct, znoFeedG:BATCH.massG*(znoPct/100),
+    washWaterPerWashML:REF.washWaterMLPerWash*s, washWaterTotalML:REF.washWaterTotalML*s,
+    acidVolML:REF.acidVolMLper98pct*s*p, acidDiluteWaterML:REF.acidDiluteWaterML*s,
+    naohFeRemovalG:REF.naohFeRemovalG*s, na2so4G:REF.na2so4G*s,
+    naohZnPrecipG:REF.naohZnPrecipG*s*p, naohZnPrecipSolnML:REF.naohZnPrecipSolnML*s*p,
+    znOH2WetG:REF.znOH2WetG*s*p,
+    cakeWashWaterPerRound:REF.cakeWashWaterPerRound*s, cakeWashRounds:REF.cakeWashRounds,
+    dryExpectedLowG:REF.dryExpectedLowG*s*p, dryExpectedHighG:REF.dryExpectedHighG*s*p,
+    znoYieldLowG:REF.znoYieldLowG*s*p, znoYieldHighG:REF.znoYieldHighG*s*p,
+    feRemovedG:REF.feRemovedG*s, pbRemovedG:REF.pbRemovedG*s,
+    filterResidueLowG:REF.filterResidueLowG*s, filterResidueHighG:REF.filterResidueHighG*s
+  };
+}
+
+/* ── 3. STEP BUILDER ──────────────────────────────────────── */
+function buildSteps(){
+  var R = getScaledRecipe();
+  return [
+  { id:1, name:"Hot water dechlorination", short:"Dechlorination", dur:90*60, durLabel:"90 min (2 × 45)", rx:null,
+    obj:"First we wash the zinc ash with hot water to remove chloride salt — like rinsing vegetables before cooking. Clean material goes into the acid stage.",
+    specs:[{l:"Water per wash",v:fmtVol(R.washWaterPerWashML)},{l:"Temperature",v:"85 °C",hot:true},{l:"Time per wash",v:"45 min"},{l:"Washes",v:"2"},{l:"Total water",v:fmtVol(R.washWaterTotalML)}],
+    subs:[
+      {icon:"🪣",title:"Weigh "+fmtMass(R.massG)+" of zinc ash",desc:"Put the zinc ash on the balance. You need exactly "+fmtMass(R.massG)+". Record the weight in the logbook.",timerFrac:0},
+      {icon:"💧",title:"Measure "+fmtVol(R.washWaterPerWashML)+" of clean water",desc:"Measure "+fmtVol(R.washWaterPerWashML)+" of deionised water into a heat-proof beaker.",timerFrac:0.02},
+      {icon:"🔥",title:"Heat the water to 85 °C",desc:"Set the hot plate to 85 °C and wait until the thermometer reads 85 °C.",timerFrac:0.05},
+      {icon:"⚗️",title:"Add the ash and stir",desc:"Pour the "+fmtMass(R.massG)+" of zinc ash into the hot water. Stir continuously with a glass rod for 45 minutes — the chloride salt dissolves out.",timerFrac:0.08},
+      {icon:"🧪",title:"Filter and keep the solid",desc:"Filter the slurry. Keep the grey solid on the paper — that is the washed ash. Discard the salty filtrate.",timerFrac:0.44},
+      {icon:"🔁",title:"Repeat the wash once more",desc:"Second wash: "+fmtVol(R.washWaterPerWashML)+" fresh water at 85 °C, add the solid, stir 45 min, filter. After this the feed is ready for leaching.",timerFrac:0.5}
+    ],
+    ph:[{k:"Water/wash",v:fmtVol(R.washWaterPerWashML)},{k:"Temp.",v:"85 °C"},{k:"Time",v:"45 min × 2"},{k:"Total water",v:fmtVol(R.washWaterTotalML)}]},
+
+  { id:2, name:"Acid leaching", short:"Acid leach", dur:120*60, durLabel:"2 hours", rx:"ZnO + H₂SO₄ → ZnSO₄ + H₂O",
+    obj:"Dissolve the zinc using dilute sulfuric acid — like dissolving sugar in water. The result is a clear zinc sulfate solution that can be purified.",
+    specs:[{l:"Acid (98%)",v:fmtVol(R.acidVolML)},{l:"Dilute into",v:fmtVol(R.acidDiluteWaterML)},{l:"Temperature",v:"70 °C",hot:true},{l:"Time",v:"2 hours"},{l:"Stirring",v:"500 rpm"}],
+    subs:[
+      {icon:"🥛",title:"Prepare the dilute acid",desc:"Pour "+fmtVol(R.acidDiluteWaterML)+" of clean water into a large beaker first, then slowly add "+fmtVol(R.acidVolML)+" of concentrated sulfuric acid. Always acid into water, never the reverse. Wear gloves and eye protection.",timerFrac:0},
+      {icon:"🔥",title:"Heat the acid to 70 °C",desc:"Place the beaker on the hot plate and wait until the thermometer reads 70 °C before adding anything.",timerFrac:0.04},
+      {icon:"⚗️",title:"Add the washed ash",desc:"Spoon the washed ash from step 1 slowly into the warm acid. Some fizzing is normal.",timerFrac:0.08},
+      {icon:"🌀",title:"Stir for the full 2 hours",desc:"Set the stirrer to 500 rpm and hold 70 °C for 2 hours. The zinc dissolves during this period.",timerFrac:0.12},
+      {icon:"🌡️",title:"Check temperature every 30 min",desc:"Confirm the bath is still at 70 °C every half hour, adjust the hot plate if it drifts, and log each reading.",timerFrac:0.5},
+      {icon:"✅",title:"Confirm the liquor is nearly clear",desc:"At the end the liquid should look pale yellow and mostly clear — the zinc is in solution. Move straight to filtration while it is still hot.",timerFrac:0.92}
+    ],
+    ph:[{k:"H₂SO₄",v:fmtVol(R.acidVolML)},{k:"Diluted in",v:fmtVol(R.acidDiluteWaterML)},{k:"Temp.",v:"70 °C"},{k:"Time",v:"2 h"}]},
+
+  { id:3, name:"Hot filtration", short:"Hot filtration", dur:0, durLabel:"Manual", rx:null,
+    obj:"Like straining tea, we filter out undissolved sand and clay while the liquor is still hot. Keep the clear liquid, discard the solids.",
+    specs:[{l:"Filter",v:"While hot",hot:true},{l:"Residue",v:fmtMass(R.filterResidueLowG)+"–"+fmtMass(R.filterResidueHighG)},{l:"Keep",v:"Clear filtrate"}],
+    subs:[
+      {icon:"📄",title:"Set up the filter paper",desc:"Fold a filter paper into a cone, seat it in the funnel and place the funnel over a clean beaker.",manual:true},
+      {icon:"🔥",title:"Work quickly while hot",desc:"The liquor must still be above 60 °C. Cold liquor blinds the paper — gently re-warm it if it has cooled.",manual:true},
+      {icon:"🫙",title:"Pour the slurry through",desc:"Pour slowly. The clear yellow liquid collects below; the grey solids stay on the paper.",manual:true},
+      {icon:"🗑️",title:"Discard the residue",desc:"The grey solid (about "+fmtMass(R.filterResidueLowG)+"–"+fmtMass(R.filterResidueHighG)+") is sand and inert oxides. Wrap it in the paper and bin it.",manual:true},
+      {icon:"🧴",title:"Label the filtrate",desc:"Cover the beaker and label it 'ZnSO₄ solution'. This goes to iron removal.",manual:true}
+    ],
+    ph:[{k:"Filter above",v:"60 °C"},{k:"Solids out",v:"~"+fmtMass((R.filterResidueLowG+R.filterResidueHighG)/2)},{k:"Keep",v:"Filtrate"}]},
+
+  { id:4, name:"Iron removal", short:"Fe removal", dur:0, durLabel:"Manual", rx:"Fe³⁺ + 3OH⁻ → Fe(OH)₃ ↓",
+    obj:"The liquor carries dissolved iron. Raising the pH with a little caustic soda drops the iron out as a brown solid that filters away.",
+    specs:[{l:"Reagent",v:"10% NaOH"},{l:"NaOH",v:fmtMass(R.naohFeRemovalG)},{l:"Target pH",v:"4.5",warn:true},{l:"Stirring",v:"Constant"}],
+    subs:[
+      {icon:"🧫",title:"Check the starting pH",desc:"Dip a pH strip in the liquor — expect about pH 2. Record it. The target is 4.5.",manual:true},
+      {icon:"💉",title:"Prepare 10% NaOH",desc:"Dissolve "+fmtMass(R.naohFeRemovalG)+" of NaOH pellets in clean water to make a 10% solution. Label the beaker.",manual:true},
+      {icon:"🐢",title:"Dose the NaOH drop by drop",desc:"Add the caustic with a dropper while stirring. Adding it fast overshoots the pH and ruins the batch.",manual:true},
+      {icon:"📊",title:"Check pH after every few drops",desc:"Stop the moment the strip reads 4.5. A brown cloudiness means the iron is coming out.",manual:true},
+      {icon:"🫗",title:"Filter off the brown solid",desc:"Filter the liquor. The brown Fe(OH)₃ stays on the paper; collect the clear liquid below.",manual:true}
+    ],
+    ph:[{k:"Start pH",v:"~2"},{k:"Target pH",v:"4.5"},{k:"NaOH",v:"10% soln."},{k:"Fe removed",v:"~"+fmtMass(R.feRemovedG)}]},
+
+  { id:5, name:"Lead removal", short:"Pb removal", dur:0, durLabel:"Manual", rx:"Pb²⁺ + SO₄²⁻ → PbSO₄ ↓",
+    obj:"A trace of lead stays dissolved. Adding sodium sulfate precipitates it as white lead sulfate, which filters out safely.",
+    specs:[{l:"Reagent",v:"Na₂SO₄"},{l:"Amount",v:fmtMass(R.na2so4G)},{l:"Pb removed",v:"~"+fmtMass(R.pbRemovedG)}],
+    subs:[
+      {icon:"⚖️",title:"Weigh "+fmtMass(R.na2so4G)+" of sodium sulfate",desc:"Measure exactly "+fmtMass(R.na2so4G)+" of Na₂SO₄ powder on the balance.",manual:true},
+      {icon:"🥄",title:"Add it to the liquor",desc:"Stir the powder into the clear zinc liquor for 2–3 minutes. A faint white haze is the lead precipitating.",manual:true},
+      {icon:"⏳",title:"Let it stand 5 minutes",desc:"Leave the beaker undisturbed so the PbSO₄ crystals settle fully.",manual:true},
+      {icon:"🫗",title:"Filter off the white solid",desc:"Filter through clean paper. The white lead solid stays behind; the liquor below is now lead-free.",manual:true},
+      {icon:"⚠️",title:"Dispose of the lead waste",desc:"The paper and solid are hazardous waste. Seal them in a bag and follow the plant's chemical waste procedure.",manual:true}
+    ],
+    ph:[{k:"Na₂SO₄",v:fmtMass(R.na2so4G)},{k:"Pb removed",v:"~"+fmtMass(R.pbRemovedG)},{k:"Waste",v:"Hazardous"}]},
+
+  { id:6, name:"Zinc precipitation", short:"Zn precipitation", dur:0, durLabel:"Manual", rx:"ZnSO₄ + 2NaOH → Zn(OH)₂ ↓ + Na₂SO₄",
+    obj:"Now we pull the zinc back out of solution with caustic soda up to pH 8.8–9.0. It drops out as a fluffy white zinc hydroxide — liquid turning to solid, like setting yogurt.",
+    specs:[{l:"NaOH",v:fmtMass(R.naohZnPrecipG)},{l:"As 10% soln.",v:"~"+fmtVol(R.naohZnPrecipSolnML)},{l:"Target pH",v:"8.8–9.0",warn:true},{l:"Never exceed",v:"pH 9.5",hot:true}],
+    subs:[
+      {icon:"🧴",title:"Prepare the bulk NaOH solution",desc:"Dissolve "+fmtMass(R.naohZnPrecipG)+" of NaOH in clean water to make about "+fmtVol(R.naohZnPrecipSolnML)+" of 10% solution. Label it clearly.",manual:true},
+      {icon:"🐢",title:"Dose slowly while stirring",desc:"Add the caustic gradually — a burette or dropper is ideal — stirring the whole time. The growing white haze is your zinc.",manual:true},
+      {icon:"📊",title:"Monitor pH continuously",desc:"Check every 2–3 minutes and stop at pH 8.8. Above pH 9.5 the zinc hydroxide redissolves and the batch is lost.",manual:true},
+      {icon:"🫙",title:"Let the solid settle",desc:"Once you are between pH 8.8 and 9.0, stir two more minutes then leave it still. A thick white bed settles out.",manual:true},
+      {icon:"🫗",title:"Filter the white solid",desc:"Filter on a Büchner funnel (or gravity funnel). Keep the white Zn(OH)₂ cake; discard the liquor.",manual:true}
+    ],
+    ph:[{k:"NaOH",v:fmtMass(R.naohZnPrecipG)},{k:"Solution",v:"~"+fmtVol(R.naohZnPrecipSolnML)},{k:"Target pH",v:"8.8–9.0"},{k:"Zn(OH)₂",v:"~"+fmtMass(R.znOH2WetG)}]},
+
+  { id:7, name:"Cake filtration and weighing", short:"Filter cake", dur:0, durLabel:"Manual", rx:null,
+    obj:"Separate the white zinc hydroxide cleanly from the liquor, then weigh it to confirm the yield so far.",
+    specs:[{l:"Product",v:"White Zn(OH)₂"},{l:"Expected wet",v:"~"+fmtMass(R.znOH2WetG)},{l:"Method",v:"Vacuum filter"}],
+    subs:[
+      {icon:"📄",title:"Set up the Büchner funnel",desc:"Fit the funnel to a vacuum flask, seat the filter paper and start the pump. Gravity filtration works if no pump is available.",manual:true},
+      {icon:"🫗",title:"Pour the slurry onto the filter",desc:"The white solid builds up as a cake on the paper; the liquor goes to waste.",manual:true},
+      {icon:"⚖️",title:"Weigh the wet cake",desc:"When dripping stops, lift out the paper and cake and weigh it. Expect around "+fmtMass(R.znOH2WetG)+".",manual:true},
+      {icon:"📝",title:"Log the result",desc:"Record the wet weight. Well below "+fmtMass(R.znOH2WetG)+" points to zinc lost in an earlier stage — check the pH logs before continuing.",manual:true}
+    ],
+    ph:[{k:"Wet cake",v:"~"+fmtMass(R.znOH2WetG)},{k:"Method",v:"Vacuum / gravity"}]},
+
+  { id:8, name:"Cake washing", short:"Wash × 3", dur:0, durLabel:"Manual", rx:null,
+    obj:"The cake still holds sodium sulfate from precipitation. Three water washes bring it back to neutral and salt-free.",
+    specs:[{l:"Rounds",v:"3"},{l:"Water each",v:fmtVol(R.cakeWashWaterPerRound)},{l:"Total water",v:fmtVol(R.cakeWashWaterPerRound*R.cakeWashRounds)},{l:"Stop at",v:"pH ≈ 7",warn:true}],
+    subs:[
+      {icon:"💧",title:"Pour "+fmtVol(R.cakeWashWaterPerRound)+" over the cake",desc:"Spread "+fmtVol(R.cakeWashWaterPerRound)+" of deionised water slowly and evenly across the cake and let it soak through.",manual:true},
+      {icon:"📊",title:"Check the pH of the drip",desc:"Catch some filtrate and test it. Above pH 8 means more washing is needed; near 7 means it is getting clean.",manual:true},
+      {icon:"🔁",title:"Repeat twice more",desc:"Two further "+fmtVol(R.cakeWashWaterPerRound)+" washes, "+fmtVol(R.cakeWashWaterPerRound*R.cakeWashRounds)+" in total, testing the pH each time.",manual:true},
+      {icon:"✅",title:"Confirm the wash is complete",desc:"Clear drip water at pH ≈ 7 means the cake is ready for drying. If the pH is still high, run a fourth wash.",manual:true}
+    ],
+    ph:[{k:"Washes",v:"3×"},{k:"Water/wash",v:fmtVol(R.cakeWashWaterPerRound)},{k:"Stop at",v:"pH ≈ 7"}]},
+
+  { id:9, name:"Oven drying", short:"Dry 105 °C", dur:12*3600, durLabel:"12 hours", rx:null,
+    obj:"Dry the washed cake at 105 °C for 12 hours to drive off all free moisture before calcination.",
+    specs:[{l:"Temperature",v:"105 °C",hot:true},{l:"Time",v:"12 hours"},{l:"Expected dry mass",v:fmtMass(R.dryExpectedLowG)+"–"+fmtMass(R.dryExpectedHighG)}],
+    subs:[
+      {icon:"🫙",title:"Spread the cake on a tray",desc:"Break the cake off the paper and spread it flat on a ceramic or metal tray. Do not heap it — an even layer dries uniformly.",timerFrac:0},
+      {icon:"🔥",title:"Pre-heat the oven to 105 °C",desc:"Set the oven and give it 15 minutes to stabilise before loading.",timerFrac:0.01},
+      {icon:"📥",title:"Load the tray",desc:"Place the tray inside and note the time. It stays in for 12 hours and can run overnight.",timerFrac:0.02},
+      {icon:"⏰",title:"Check at 6 hours",desc:"Open briefly, confirm the material is still white rather than yellow, and close the door. Do not remove it yet.",timerFrac:0.5},
+      {icon:"📤",title:"Unload and weigh",desc:"Switch off, remove the tray with oven gloves, cool 10 minutes and weigh. Expect "+fmtMass(R.dryExpectedLowG)+"–"+fmtMass(R.dryExpectedHighG)+".",timerFrac:0.96}
+    ],
+    ph:[{k:"Temp.",v:"105 °C"},{k:"Time",v:"12 h"},{k:"Expected",v:fmtMass(R.dryExpectedLowG)+"–"+fmtMass(R.dryExpectedHighG)}]},
+
+  { id:10, name:"Calcination to ZnO", short:"Calcination", dur:150*60, durLabel:"2.5 hours", rx:"Zn(OH)₂ → ZnO + H₂O (500 °C)",
+    obj:"The final stage. Firing the dry hydroxide at 500 °C converts it to zinc oxide powder, much as a kiln turns clay into ceramic.",
+    specs:[{l:"Temperature",v:"500 °C",hot:true},{l:"Ramp rate",v:"5 °C/min",hot:true},{l:"Hold",v:"2.5 hours"},{l:"Atmosphere",v:"Open air"},{l:"Purity",v:"97–99%"}],
+    subs:[
+      {icon:"🫙",title:"Charge the crucible",desc:"Transfer the dry Zn(OH)₂ powder into a ceramic crucible, filling it no more than 60%.",timerFrac:0},
+      {icon:"🔥",title:"Start the furnace and ramp slowly",desc:"Load the crucible into the muffle furnace and program a 5 °C/min ramp from room temperature to 500 °C. Slow heating matters here.",timerFrac:0.02},
+      {icon:"🌡️",title:"Reach 500 °C",desc:"When the display holds at 500 °C the conversion is under way and water vapour is released — a faint steam is normal.",timerFrac:0.35},
+      {icon:"⏳",title:"Hold 2.5 hours",desc:"Keep the furnace closed at 500 °C for the full soak.",timerFrac:0.4},
+      {icon:"❄️",title:"Switch off and cool in place",desc:"Leave the door shut and let the furnace fall below 100 °C on its own, roughly 1–2 hours. Opening it hot cracks the crucible.",timerFrac:0.95},
+      {icon:"⭐",title:"Collect the ZnO",desc:"Remove the crucible. The fine white to pale-yellow powder is your product at 97–99% purity. Weigh it — expect "+fmtMass(R.znoYieldLowG)+"–"+fmtMass(R.znoYieldHighG)+".",timerFrac:0.98}
+    ],
+    ph:[{k:"Temp.",v:"500 °C"},{k:"Ramp",v:"5 °C/min"},{k:"Hold",v:"2.5 h"},{k:"ZnO yield",v:fmtMass(R.znoYieldLowG)+"–"+fmtMass(R.znoYieldHighG)}]}
+  ];
+}
+var STEPS = buildSteps();
+
+/* ── 4. RUN STATE ─────────────────────────────────────────── */
+var S = {started:false, current:0, status:{}, timers:{}, subStatus:{}, subCurrent:{}};
+function resetStepState(){
+  STEPS.forEach(function(s){
+    S.status[s.id]='locked';
+    S.subStatus[s.id]=s.subs.map(function(){return 'locked';});
+    S.subCurrent[s.id]=0;
+  });
+}
+function clearAllTimers(){
+  Object.keys(S.timers).forEach(function(k){ if(S.timers[k]&&S.timers[k].iid) clearInterval(S.timers[k].iid); });
+  S.timers={};
+}
+resetStepState();
+
+var FF = 1;
+function setFF(v){
+  FF=v;
+  Array.prototype.forEach.call(document.querySelectorAll('.ffbtn'),function(b){
+    b.classList.toggle('on', parseInt(b.getAttribute('data-ff'),10)===v);
+  });
+  renderRP(S.current||null);
+}
+
+/* ── 5. RENDER ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',function(){
+  initBg(); renderPL(); renderSidebar(); renderCenter(); renderRP();
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); });
+});
+
+function initBg(){
+  var c=document.getElementById('bgCanvas'), ctx=c&&c.getContext?c.getContext('2d'):null, W,H,dots;
+  if(!ctx) return;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function resize(){
+    W=c.width=window.innerWidth; H=c.height=window.innerHeight; dots=[];
+    for(var i=0;i<55;i++) dots.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.3,
+      vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28, a:Math.random()*.32+.08});
+  }
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,245,255,0.035)'; ctx.lineWidth=1;
+    for(var x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(var y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    dots.forEach(function(d){
+      d.x+=d.vx; d.y+=d.vy;
+      if(d.x<0)d.x=W; if(d.x>W)d.x=0; if(d.y<0)d.y=H; if(d.y>H)d.y=0;
+      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,245,255,'+d.a+')'; ctx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener('resize',resize); resize(); frame();
+}
+
+function fmt(s){s=Math.max(0,Math.round(s));var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;
+  return h>0?pad(h)+':'+pad(m)+':'+pad(x):pad(m)+':'+pad(x);}
+function pad(n){return n<10?'0'+n:''+n;}
+function setSt(t,c){var d=document.getElementById('sd'),l=document.getElementById('slbl');
+  d.className='sd'+(c?' '+c:''); l.className='slbl'+(c?' '+c:''); l.textContent=t;}
+function renderPL(){
+  document.getElementById('pl').innerHTML=STEPS.map(function(s){
+    var c = S.status[s.id]==='done'?' class="ok"' : (S.current===s.id?' class="now"':'');
+    return '<span'+c+'>'+s.short+'</span>';
+  }).join('');
+}
+function updatePipe(){
+  var done=STEPS.filter(function(s){return S.status[s.id]==='done';}).length;
+  document.getElementById('pf').style.width=(done/STEPS.length*100)+'%';
+  renderPL();
+}
+function updateFeedBadge(){
+  var el=document.getElementById('feedBasisBadge');
+  if(el) el.querySelector('.bv').textContent=fmtMass(BATCH.massG)+' zinc ash';
+}
+
+/* sidebar */
+function renderSidebar(){
+  document.getElementById('lsb').innerHTML = STEPS.map(function(s){
+    var ss=S.status[s.id], cls=ss+((S.current===s.id&&ss!=='done')?' active':'');
+    var icon='', meta=s.durLabel;
+    if(ss==='locked'){ icon='<span class="slock">🔒</span>'; }
+    else if(ss==='running'){ var t=S.timers[s.id];
+      icon='<span class="mt" id="mt-'+s.id+'">'+(t?fmt(t.remaining):'--:--')+'</span>'; meta='Running'; }
+    else if(ss==='done'){ icon='<span class="slock" style="color:var(--green)">✓</span>'; meta='Complete'; }
+    else { icon='<span style="width:14px;display:inline-block"></span>'; }
+    return '<div class="sitem '+cls+'" id="si-'+s.id+'" onclick="gotoStep('+s.id+')">'+
+      '<div class="sirow"><div class="snb">'+(s.id<10?'0'+s.id:s.id)+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="sname">'+s.name+'</div><div class="smeta">'+meta+'</div></div>'+
+      icon+'</div>'+
+      ((ss!=='locked'&&ss!=='done')?buildSubMini(s.id):'')+'</div>';
+  }).join('');
+}
+function buildSubMini(sid){
+  return '<div class="subdots">'+S.subStatus[sid].map(function(st){
+    return '<i class="'+(st==='locked'?'':st)+'"></i>';
+  }).join('')+'</div>';
+}
+function gotoStep(id){
+  if(S.status[id]==='locked') return;
+  S.current=id; renderSidebar(); renderCenter(); renderRP(id); renderPL();
+  document.getElementById('center').scrollTop=0;
+}
+
+/* centre */
+function renderCenter(){
+  var el=document.getElementById('center');
+  if(!BATCH.configured){ el.innerHTML=buildSetup(); return; }
+  if(!S.started){ el.innerHTML=buildIntro(); return; }
+
+  var step=STEPS[S.current-1], ss=S.status[step.id], html='';
+  STEPS.filter(function(s){return s.id<step.id&&S.status[s.id]==='done';}).slice(-2).forEach(function(s){
+    html+='<div class="donecard"><div class="dcheck">✓</div><div>'+
+      '<div class="dname">Step '+s.id+': '+s.name+'</div>'+
+      '<div class="dmeta">COMPLETE — '+s.durLabel+'</div></div></div>';
+  });
+
+  if(ss==='locked'){
+    html+='<div class="lockcard"><div class="lockbig">🔐</div>'+
+      '<div class="locktitle">Step '+step.id+' is locked</div>'+
+      '<div class="locksub">Finish the previous step to open this one.</div></div>';
+  } else {
+    html+=buildStepHeader(step,ss)+buildSubPath(step);
+    if(ss==='unlocked'&&step.dur>0){
+      html+='<button class="actbtn" type="button" onclick="startTimer('+step.id+')">Start '+step.durLabel+' timer</button>';
+    } else if(ss==='done'){
+      var next=STEPS[step.id];
+      if(next&&S.status[next.id]!=='locked'){
+        html+='<button class="actbtn" type="button" onclick="gotoStep('+next.id+')">Go to step '+next.id+': '+next.name+'</button>';
+      } else if(!next){ html+=buildComplete(); }
+    }
+  }
+  el.innerHTML=html;
+}
+
+function buildSetup(){
+  var total=xrfTotalPct(), warn=(total>101||total<95)?'warn':'';
+  var R=getScaledRecipe();
+  var rows=Object.keys(BATCH.xrf).map(function(k){
+    return '<div class="xrfitem"><div class="xrfitem-lbl">'+XRF_LABELS[k]+'</div>'+
+      '<input type="number" step="0.001" min="0" max="100" data-xrf="'+k+'" value="'+BATCH.xrf[k]+'" '+
+      (BATCH.useCustomXrf?'':'disabled')+' oninput="onXrfInput(this)"/></div>';
+  }).join('');
+
+  return '<div class="setupwrap">'+
+    '<div class="setuphdr"><h2 class="setuptitle">Batch setup</h2>'+
+    '<p class="setupsub">Enter the zinc ash batch size, and the XRF assay if you have one. Water volumes, acid, caustic and expected yield all rescale from these two inputs.</p></div>'+
+
+    '<div class="setupcard"><span class="setupcard-title">FEED BATCH SIZE</span>'+
+      '<div class="batchrow">'+
+        '<div class="field"><span class="field-lbl">ZINC ASH QUANTITY</span>'+
+        '<input type="number" id="batchMassInput" min="0.001" step="any" value="'+fmtNum(gramsToUnit(BATCH.massG,BATCH.unit),4)+'" oninput="onBatchMassInput(this)"/></div>'+
+        '<div class="unitgroup">'+
+          ['g','kg','t'].map(function(u){
+            return '<button class="unitbtn'+(BATCH.unit===u?' on':'')+'" type="button" data-unit="'+u+'" onclick="setBatchUnit(\''+u+'\')">'+(u==='t'?'tonne':u)+'</button>';
+          }).join('')+
+        '</div></div>'+
+      '<div class="fieldwarn" id="massWarn" style="display:none">Enter a batch size greater than zero.</div>'+
+    '</div>'+
+
+    '<div class="setupcard">'+
+      '<div class="setuptoggle"><div>'+
+        '<div class="setuptoggle-t">Use a custom XRF assay</div>'+
+        '<div class="setuptoggle-s">Off uses the JAMP reference composition, 69.40% ZnO</div></div>'+
+        '<div class="swtch'+(BATCH.useCustomXrf?' on':'')+'" id="xrfSwitch" role="switch" tabindex="0" onclick="toggleCustomXrf()" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleCustomXrf();}"></div>'+
+      '</div>'+
+      '<div class="xrfgrid">'+rows+'</div>'+
+      '<div class="xrftotal '+warn+'" id="xrfTotalRow"><span class="xrftotal-lbl">TOTAL COMPOSITION</span>'+
+      '<span class="xrftotal-val" id="xrfTotalVal">'+fmtNum(total,2)+'%</span></div>'+
+    '</div>'+
+
+    '<div class="calcpreview"><span class="calcpreview-title">RECIPE PREVIEW</span>'+
+      '<div class="calcgrid" id="calcGrid">'+buildCalcGridHtml(R)+'</div></div>'+
+
+    '<button class="startbtn" type="button" id="confirmSetupBtn" onclick="confirmSetup()" style="align-self:center">Build the protocol</button>'+
+  '</div>';
+}
+function buildCalcGridHtml(R){
+  return [
+    ['Dechlorination water, each wash',fmtVol(R.washWaterPerWashML),''],
+    ['H₂SO₄ 98% required',fmtVol(R.acidVolML),'o'],
+    ['NaOH for precipitation',fmtMass(R.naohZnPrecipG),'o'],
+    ['Wet Zn(OH)₂ cake','~'+fmtMass(R.znOH2WetG),''],
+    ['Dry mass before firing',fmtMass(R.dryExpectedLowG)+'–'+fmtMass(R.dryExpectedHighG),''],
+    ['Final ZnO yield',fmtMass(R.znoYieldLowG)+'–'+fmtMass(R.znoYieldHighG),'g']
+  ].map(function(r){
+    return '<div class="calcitem"><span class="calcitem-l">'+r[0]+'</span><span class="calcitem-v '+r[2]+'">'+r[1]+'</span></div>';
+  }).join('');
+}
+function onBatchMassInput(inp){
+  var raw=parseFloat(inp.value), w=document.getElementById('massWarn'), b=document.getElementById('confirmSetupBtn');
+  if(!raw||raw<=0){ if(w)w.style.display='flex'; if(b)b.disabled=true; return; }
+  if(w)w.style.display='none'; if(b)b.disabled=false;
+  BATCH.massG=unitToGrams(raw,BATCH.unit);
+  refreshCalcPreview();
+}
+function setBatchUnit(u){
+  var inp=document.getElementById('batchMassInput');
+  var grams=unitToGrams(parseFloat(inp.value)||0,BATCH.unit);
+  BATCH.unit=u;
+  Array.prototype.forEach.call(document.querySelectorAll('.unitbtn'),function(b){
+    b.classList.toggle('on', b.getAttribute('data-unit')===u);
+  });
+  inp.value=fmtNum(gramsToUnit(grams,u),4);
+  BATCH.massG=grams;
+  refreshCalcPreview();
+}
+function toggleCustomXrf(){
+  BATCH.useCustomXrf=!BATCH.useCustomXrf;
+  if(!BATCH.useCustomXrf) BATCH.xrf=Object.assign({},DEFAULT_XRF);   /* revert cleanly */
+  renderCenter();
+}
+function onXrfInput(inp){
+  BATCH.xrf[inp.getAttribute('data-xrf')]=parseFloat(inp.value)||0;
+  refreshXrfTotal(); refreshCalcPreview();
+}
+function refreshXrfTotal(){
+  var total=xrfTotalPct(), row=document.getElementById('xrfTotalRow'), val=document.getElementById('xrfTotalVal');
+  if(!row||!val) return;
+  val.textContent=fmtNum(total,2)+'%';
+  row.classList.toggle('warn',(total>101||total<95));
+}
+function refreshCalcPreview(){
+  var g=document.getElementById('calcGrid');
+  if(g) g.innerHTML=buildCalcGridHtml(getScaledRecipe());
+}
+function confirmSetup(){
+  var raw=parseFloat(document.getElementById('batchMassInput').value);
+  if(!raw||raw<=0){ document.getElementById('massWarn').style.display='flex'; return; }
+  BATCH.massG=unitToGrams(raw,BATCH.unit);
+  BATCH.configured=true;
+  clearAllTimers();
+  STEPS=buildSteps();                 /* rebuild every recipe string at the final scale */
+  resetStepState();
+  S.started=false; S.current=0;
+  setSt('READY','');
+  updateFeedBadge(); renderPL(); renderSidebar(); renderCenter(); renderRP(); updatePipe();
+}
+function reopenSetup(){ BATCH.configured=false; renderCenter(); }
+
+function buildIntro(){
+  var R=getScaledRecipe();
+  return '<div class="intro"><div class="ihex"><svg viewBox="0 0 120 138" width="96" height="110" aria-hidden="true">'+
+    '<polygon points="60,4 114,34 114,104 60,134 6,104 6,34" fill="none" stroke="#00f5ff" stroke-width="1" opacity="0.3"/>'+
+    '<polygon points="60,14 104,39 104,99 60,124 16,99 16,39" fill="none" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>'+
+    '<text x="50%" y="48%" text-anchor="middle" fill="#00f5ff" font-size="22" font-family="monospace" font-weight="700" dominant-baseline="middle">ZnO</text>'+
+    '<text x="50%" y="65%" text-anchor="middle" fill="#8892a0" font-size="7" font-family="monospace" dominant-baseline="middle">HYDROMET</text></svg></div>'+
+    '<h2 class="ititle">Ten steps from zinc ash to zinc oxide</h2>'+
+    '<p class="isub">A guided run for '+fmtMass(BATCH.massG)+' of feed. Each step opens one action at a time, with the quantity, temperature and hold time already worked out for this batch.</p>'+
+    '<div class="istats">'+
+      '<div class="istat"><span class="isv">10</span><span class="isl">Stages</span></div>'+
+      '<div class="istat"><span class="isv">50</span><span class="isl">Operator actions</span></div>'+
+      '<div class="istat"><span class="isv">'+fmtMass(R.znoYieldLowG)+'</span><span class="isl">Minimum ZnO</span></div>'+
+      '<div class="istat"><span class="isv">97–99%</span><span class="isl">Purity</span></div>'+
+    '</div>'+
+    '<button class="fbtn" type="button" onclick="reopenSetup()">Edit batch size or XRF</button>'+
+    '<button class="startbtn" type="button" onclick="startProcess()">Begin</button></div>';
+}
+
+function buildStepHeader(step,ss){
+  return '<div class="schdr"><div class="sch-top">'+
+    '<span class="scnum">STEP '+(step.id<10?'0'+step.id:step.id)+'</span>'+
+    '<span class="sctitle">'+step.name+'</span>'+
+    (step.rx?'<span class="scrx">'+step.rx+'</span>':'')+
+    (ss==='done'?'<span class="scdone-badge">COMPLETE</span>':'')+
+    '</div><div class="sch-body"><p class="sc-obj">'+step.obj+'</p><div class="specs">'+
+    step.specs.map(function(sp){
+      return '<div class="spec"><span class="spl">'+sp.l+'</span><span class="spv'+(sp.hot?' hot':'')+(sp.warn?' warn':'')+'">'+sp.v+'</span></div>';
+    }).join('')+'</div></div></div>';
+}
+
+function buildSubPath(step){
+  var statuses=S.subStatus[step.id];
+  var html='<div class="subpath-wrap"><span class="subpath-title">ACTIONS</span><div class="subpath">';
+  step.subs.forEach(function(sub,i){
+    var st=statuses[i], timerHtml='', btnHtml='';
+    var label = st==='done'?'DONE' : st==='active'?'DO THIS NOW' : st==='timer'?'IN PROGRESS' : 'WAITING';
+    if(st==='timer'){
+      var t=S.timers[step.id], pct=t?((step.dur-t.remaining)/step.dur*100):0;
+      timerHtml='<div class="sn-timer"><span class="sn-timer-val" id="std-'+step.id+'">'+fmt(t?t.remaining:0)+'</span>'+
+        '<span class="sn-timer-lbl">REMAINING</span></div>'+
+        '<div class="sn-progwrap"><div class="sn-prog" id="sprg-'+step.id+'" style="width:'+pct+'%"></div></div>';
+    }
+    if(st==='active'&&sub.manual){
+      btnHtml='<button class="sn-btn" type="button" onclick="doneManualSub('+step.id+','+i+')">Done, next action</button>';
+    }
+    html+='<div class="subnode ss-'+st+'"><div class="sn-line"></div><div class="sn-icon">'+sub.icon+'</div>'+
+      '<div class="sn-content"><span class="sn-label">'+label+'</span>'+
+      '<div class="sn-title">'+sub.title+'</div>'+
+      '<div class="sn-desc">'+(st!=='locked'?sub.desc:'')+'</div>'+timerHtml+btnHtml+'</div></div>';
+  });
+  return html+'</div></div>';
+}
+
+function buildComplete(){
+  var R=getScaledRecipe();
+  return '<div class="completebanner"><div class="cbicon">⬡</div>'+
+    '<div class="cbtitle">Batch complete — ZnO recovered</div>'+
+    '<div class="cbsub">All ten stages finished. High-purity zinc oxide recovered from '+fmtMass(BATCH.massG)+' of zinc ash.</div>'+
+    '<div class="cbstats">'+
+      '<div class="cbstat"><span class="cbsv">'+fmtMass(R.znoYieldLowG)+'–'+fmtMass(R.znoYieldHighG)+'</span><span class="cbsl">ZnO yield</span></div>'+
+      '<div class="cbstat"><span class="cbsv">97–99%</span><span class="cbsl">Purity</span></div>'+
+      '<div class="cbstat"><span class="cbsv">90–95%</span><span class="cbsl">Recovery</span></div>'+
+    '</div><button class="restartbtn" type="button" onclick="restart()">Run another batch</button></div>';
+}
+
+/* right panel */
+function renderRP(stepId){
+  var el=document.getElementById('rpbody'), step=stepId?STEPS[stepId-1]:null, R=getScaledRecipe(), html='';
+  if(step){
+    html+='<div class="subprog-block"><span class="subprog-title">ACTIONS PROGRESS</span>'+
+      step.subs.map(function(sub,i){
+        var st=S.subStatus[step.id][i];
+        return '<div class="subprog-item"><div class="sp-dot'+(st==='locked'?'':' '+st)+'"></div>'+
+          '<span class="sp-name'+(st==='locked'?' locked':'')+'">'+sub.title+'</span></div>';
+      }).join('')+'</div><div class="pdiv"></div>'+
+      '<div class="phl"><span class="phlt">STEP '+step.id+' SPECS</span>'+
+      step.ph.map(function(p){return '<div class="prow"><span class="pk">'+p.k+'</span><span class="pv c">'+p.v+'</span></div>';}).join('')+
+      '</div><div class="pdiv"></div>';
+  }
+  var x=activeXrf();
+  html+='<div class="pgroup"><div class="ptitle">FEED COMPOSITION</div>'+
+    '<div class="prow"><span class="pk">Feed ash</span><span class="pv">'+fmtMass(BATCH.massG)+'</span></div>'+
+    '<div class="prow"><span class="pk">ZnO</span><span class="pv">'+fmtMass(BATCH.massG*(x.ZnO/100))+'</span></div>'+
+    '<div class="prow"><span class="pk">Cl salts</span><span class="pv">'+fmtMass(BATCH.massG*(x.Cl/100))+'</span></div>'+
+    '<div class="prow"><span class="pk">Fe₂O₃</span><span class="pv">'+fmtMass(BATCH.massG*(x.Fe2O3/100))+'</span></div>'+
+    '<div class="prow"><span class="pk">PbO</span><span class="pv">'+fmtMass(BATCH.massG*(x.PbO/100))+'</span></div>'+
+  '</div><div class="pdiv"></div>'+
+  '<div class="pgroup"><div class="ptitle">RECOVERY TARGET</div>'+
+    '<div class="prow"><span class="pk">Conservative</span><span class="pv g">'+fmtMass(R.znoYieldLowG)+'</span></div>'+
+    '<div class="prow"><span class="pk">Optimistic</span><span class="pv c">'+fmtMass(R.znoYieldHighG)+'</span></div>'+
+    '<div class="prow"><span class="pk">Purity</span><span class="pv g">97–99%</span></div>'+
+  '</div><div class="pdiv"></div>'+
+  '<div class="pgroup"><div class="ptitle">DEMO SPEED</div>'+
+    '<div class="prow"><span class="pk">Multiplier</span><span class="pv c">'+(FF>=9999?'MAX':FF+'×')+'</span></div>'+
+    '<div class="prow"><span class="pk">12 h dry takes</span><span class="pv">'+fmt(FF>=9999?12:(12*3600)/FF)+'</span></div>'+
+  '</div>';
+  el.innerHTML=html;
+}
+
+/* ── 6. PROCESS CONTROL ───────────────────────────────────── */
+function startProcess(){
+  S.started=true; S.current=1; S.status[1]='unlocked';
+  S.subStatus[1][0]='active'; S.subCurrent[1]=0;
+  setSt('ACTIVE','active');
+  renderSidebar(); renderCenter(); renderRP(1); updatePipe();
+}
+function doneManualSub(stepId,idx){
+  var subs=STEPS[stepId-1].subs;
+  S.subStatus[stepId][idx]='done';
+  if(idx+1<subs.length){
+    S.subStatus[stepId][idx+1]='active'; S.subCurrent[stepId]=idx+1;
+    renderSidebar(); renderCenter(); renderRP(stepId);
+  } else { completeStep(stepId); }
+}
+function startTimer(stepId){
+  var step=STEPS[stepId-1];
+  if(!step||step.dur===0||S.timers[stepId]) return;
+  S.status[stepId]='running';
+  setSt('RUNNING','running');
+  S.timers[stepId]={total:step.dur, remaining:step.dur, iid:null};
+  S.subStatus[stepId][0]='timer'; S.subCurrent[stepId]=0;
+  renderCenter(); renderSidebar(); renderRP(stepId);
+
+  var iid=setInterval(function(){
+    var t=S.timers[stepId];
+    if(!t){ clearInterval(iid); return; }
+    var stepSec = FF>=9999 ? t.total/12 : FF;   /* MAX still animates over ~12 ticks */
+    t.remaining=Math.max(0, t.remaining-stepSec);
+    var pct=(t.total-t.remaining)/t.total;
+
+    var mt=document.getElementById('mt-'+stepId); if(mt) mt.textContent=fmt(t.remaining);
+    var std=document.getElementById('std-'+stepId); if(std) std.textContent=fmt(t.remaining);
+    var sp=document.getElementById('sprg-'+stepId); if(sp) sp.style.width=(pct*100)+'%';
+
+    var subs=step.subs, statuses=S.subStatus[stepId], newActive=0, changed=false;
+    for(var i=0;i<subs.length;i++){ if(subs[i].timerFrac!==undefined && pct>=subs[i].timerFrac) newActive=i; }
+    for(var j=0;j<subs.length;j++){
+      var want = j<newActive?'done' : j===newActive?'timer' : 'locked';
+      if(statuses[j]!==want){ statuses[j]=want; changed=true; }
+    }
+    if(changed && S.current===stepId){
+      var pathEl=document.querySelector('.subpath-wrap');
+      if(pathEl) pathEl.outerHTML=buildSubPath(step);
+      renderSidebar(); renderRP(stepId);
+      var std2=document.getElementById('std-'+stepId); if(std2) std2.textContent=fmt(t.remaining);
+      var sp2=document.getElementById('sprg-'+stepId); if(sp2) sp2.style.width=(pct*100)+'%';
+    } else if(changed){ renderSidebar(); }
+
+    if(t.remaining<=0){ clearInterval(iid); delete S.timers[stepId]; completeStep(stepId); }
+  },1000);
+  S.timers[stepId].iid=iid;
+}
+function completeStep(stepId){
+  S.status[stepId]='done';
+  S.subStatus[stepId]=S.subStatus[stepId].map(function(){return 'done';});
+  var next=STEPS[stepId];
+  if(next){
+    S.status[next.id]='unlocked';
+    S.subStatus[next.id][0]='active';
+    S.subCurrent[next.id]=0;
+    S.current=next.id;
+  }
+  setSt(next?'ACTIVE':'COMPLETE', next?'active':'');
+  updatePipe(); renderSidebar(); renderCenter(); renderRP(next?next.id:stepId);
+  document.getElementById('center').scrollTop=0;
+}
+function restart(){
+  clearAllTimers();
+  S.started=false; S.current=0; S.status={}; S.subStatus={}; S.subCurrent={};
+  resetStepState();
+  setSt('READY','');
+  updatePipe(); renderSidebar(); renderCenter(); renderRP();
+}
+
+/* modal */
+function openModal(){
+  var x=activeXrf(), totalPct=0, totalMass=0;
+  var rows=Object.keys(DEFAULT_XRF).map(function(k){
+    var pct=parseFloat(x[k])||0, m=BATCH.massG*(pct/100);
+    totalPct+=pct; totalMass+=m;
+    return '<tr><td>'+XRF_LABELS[k]+'</td><td>'+fmtNum(pct,3)+'</td><td>'+fmtMass(m)+'</td></tr>';
+  }).join('');
+  document.getElementById('mcon').innerHTML=
+    '<div style="margin-bottom:10px"><div class="rplbl">'+(BATCH.useCustomXrf?'CUSTOM XRF':'REFERENCE XRF')+'</div>'+
+    '<h3 style="font-size:15px;font-weight:700;color:var(--white);margin-top:5px">'+fmtMass(BATCH.massG)+' zinc ash — composition</h3></div>'+
+    '<table class="ftable"><thead><tr><th>Component</th><th>%</th><th>Mass</th></tr></thead><tbody>'+rows+
+    '<tr><td><strong>Total</strong></td><td><strong>'+fmtNum(totalPct,2)+'</strong></td><td><strong>'+fmtMass(totalMass)+'</strong></td></tr>'+
+    '</tbody></table>'+
+    (BATCH.configured?'<button class="fbtn" type="button" style="margin-top:14px" onclick="closeM();reopenSetup()">Edit batch size or XRF</button>':'');
+  document.getElementById('mov').classList.add('open');
+}
+function closeM(){ document.getElementById('mov').classList.remove('open'); }
+function closeMOuter(e){ if(e.target===document.getElementById('mov')) closeM(); }
+</script>
+</body>
+</html>

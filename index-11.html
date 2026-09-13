@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Plant ZnO Line — JAMP Industries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   JAMP INDUSTRIES — PLANT ZnO LINE (chloride route)
+   1. Tokens   2. Base/layout   3. Header   4. Pipeline
+   5. Sidebar  6. Centre        7. Right panel
+   8. Modal    9. Responsive
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. TOKENS ────────────────────────────────────────────── */
+:root{
+  --bg:#060b14; --card:#0d1526; --card2:#0f1a2e;
+  --cyan:#00f5ff; --cdim:rgba(0,245,255,.10); --cglow:rgba(0,245,255,.28);
+  --orange:#ff6b35; --odim:rgba(255,107,53,.10);
+  --green:#39ff14; --gdim:rgba(57,255,20,.08);
+  --yellow:#ffd600; --red:#ff4d6d;
+  --muted:#7a8799; --text:#c2cedd; --white:#eef4ff;
+  --border:rgba(0,245,255,.13); --lborder:#1a2840;
+  --fd:'Space Grotesk',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+  --r-sm:6px; --r-md:9px; --r-lg:13px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── 2. BASE / LAYOUT ─────────────────────────────────────── */
+html{height:100%}
+body{height:100vh;display:flex;flex-direction:column;font-family:var(--fd);background:var(--bg);
+  color:var(--text);overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.scanline{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+.layout{position:relative;z-index:10;flex:1;min-height:0;display:grid;grid-template-columns:246px minmax(0,1fr) 276px}
+.scroll::-webkit-scrollbar{width:4px;height:4px}
+.scroll::-webkit-scrollbar-thumb{background:var(--lborder);border-radius:2px}
+.scroll::-webkit-scrollbar-thumb:hover{background:var(--border)}
+
+/* ── 3. HEADER ────────────────────────────────────────────── */
+.hdr{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;padding:9px 20px;background:rgba(6,11,20,.97);border-bottom:1px solid var(--border)}
+.hl{display:flex;align-items:center;gap:11px}
+.logo{display:flex;filter:drop-shadow(0 0 7px var(--cyan));animation:hpulse 3.4s ease-in-out infinite}
+@keyframes hpulse{0%,100%{filter:drop-shadow(0 0 5px var(--cyan))}50%{filter:drop-shadow(0 0 13px var(--cyan))}}
+.co{font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--cyan);display:block}
+.st{font-size:15px;font-weight:700;color:var(--white);line-height:1.2}
+.hr2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{display:flex;flex-direction:column;gap:1px;text-align:right}
+.bl{font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--muted)}
+.bv{font-family:var(--fm);font-size:11.5px;font-weight:700;color:var(--white)}
+.bv.g{color:var(--green)}
+.fbtn{background:transparent;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--muted);
+  font-family:var(--fm);font-size:8.5px;letter-spacing:1px;padding:6px 11px;cursor:pointer;
+  transition:border-color .18s,color .18s,background .18s;white-space:nowrap}
+.fbtn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.sdwrap{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.3);border:1px solid var(--border);
+  border-radius:20px;padding:5px 12px}
+.sd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s ease-in-out infinite}
+.sd.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.sd.running{background:var(--orange);box-shadow:0 0 8px var(--orange)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.slbl{font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--green)}
+.slbl.active{color:var(--cyan)} .slbl.running{color:var(--orange)}
+.ffwrap{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:20px;padding:4px 6px}
+.fflbl{font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--muted);padding-left:5px;white-space:nowrap}
+.ffbtn{font-family:var(--fm);font-size:9px;font-weight:700;color:var(--muted);background:transparent;
+  border:1px solid transparent;border-radius:14px;padding:4px 9px;cursor:pointer;transition:.16s}
+.ffbtn:hover{color:var(--text)}
+.ffbtn.on{color:var(--bg);background:var(--orange);border-color:var(--orange);box-shadow:0 0 10px rgba(255,107,53,.4)}
+
+/* ── 4. PIPELINE ──────────────────────────────────────────── */
+.pipe{position:relative;z-index:10;padding:9px 20px 7px;background:rgba(6,11,20,.75);border-bottom:1px solid var(--border)}
+.pipebar{width:100%;height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-bottom:6px;overflow:hidden}
+.pipefill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--orange));border-radius:2px;
+  transition:width .6s ease;box-shadow:0 0 8px var(--cglow)}
+.pipelabels{display:flex;justify-content:space-between;gap:5px;font-family:var(--fm);font-size:7px;
+  color:var(--muted);overflow-x:auto;scrollbar-width:none}
+.pipelabels::-webkit-scrollbar{display:none}
+.pipelabels span{white-space:nowrap;transition:color .2s}
+.pipelabels span.now{color:var(--cyan)} .pipelabels span.ok{color:var(--green)}
+
+/* ── 5. LEFT SIDEBAR ──────────────────────────────────────── */
+.lsb{border-right:1px solid var(--border);overflow-y:auto;padding:10px 8px;background:rgba(6,11,20,.5)}
+.sitem{display:flex;flex-direction:column;gap:4px;padding:8px 9px;border-radius:var(--r-md);border:1px solid transparent;
+  cursor:pointer;transition:border-color .18s,background .18s,transform .18s;margin-bottom:4px}
+.sitem.locked{opacity:.4;cursor:not-allowed}
+.sitem.unlocked{border-color:var(--border);background:rgba(0,245,255,.02)}
+.sitem.unlocked:hover{border-color:var(--cyan);background:var(--cdim);transform:translateX(3px)}
+.sitem.active{border-color:var(--cyan);background:var(--cdim);box-shadow:0 0 14px rgba(0,245,255,.07)}
+.sitem.done{border-color:rgba(57,255,20,.25);background:var(--gdim)}
+.sitem.running{border-color:var(--orange);background:var(--odim);animation:tpulse 2.2s ease-in-out infinite}
+@keyframes tpulse{0%,100%{box-shadow:0 0 5px rgba(255,107,53,.1)}50%{box-shadow:0 0 16px rgba(255,107,53,.32)}}
+.sirow{display:flex;align-items:center;gap:8px;width:100%}
+.snb{width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:10px;font-weight:700;flex-shrink:0;border:1px solid var(--lborder);
+  background:rgba(0,0,0,.3);color:var(--muted);transition:.18s}
+.sitem.unlocked .snb,.sitem.active .snb{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.07)}
+.sitem.done .snb{border-color:var(--green);color:var(--bg);background:var(--green)}
+.sitem.running .snb{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07)}
+.sname{font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sitem.locked .sname{color:var(--muted)}
+.smeta{font-family:var(--fm);font-size:8px;color:var(--muted);margin-top:1px}
+.sitem.running .smeta{color:var(--orange)}
+.slock{font-size:10px;flex-shrink:0}
+.mt{font-family:var(--fm);font-size:9px;color:var(--orange);font-weight:700;flex-shrink:0}
+.subdots{display:flex;gap:4px;padding-left:4px}
+.subdots i{width:6px;height:6px;border-radius:50%;background:var(--lborder);flex-shrink:0}
+.subdots i.done{background:var(--green)} .subdots i.active{background:var(--cyan)} .subdots i.timer{background:var(--orange)}
+
+/* equipment tag chips */
+.tagrow{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-family:var(--fm);font-size:7.5px;font-weight:700;letter-spacing:.8px;color:var(--cyan);
+  border:1px solid var(--border);background:rgba(0,245,255,.05);border-radius:4px;padding:2px 5px;white-space:nowrap}
+.tag.pump{color:var(--orange);border-color:rgba(255,107,53,.28);background:var(--odim)}
+.tag.util{color:var(--muted);border-color:var(--lborder);background:rgba(255,255,255,.03)}
+
+/* ── 6. CENTRE PANEL ──────────────────────────────────────── */
+.center{overflow-y:auto;padding:18px 20px 40px;display:flex;flex-direction:column;gap:14px}
+.center>*{max-width:800px;width:100%;margin-inline:auto}
+.intro{display:flex;flex-direction:column;align-items:center;text-align:center;padding:26px 18px;gap:15px}
+.ihex{filter:drop-shadow(0 0 16px rgba(0,245,255,.35));animation:ispin 26s linear infinite}
+@keyframes ispin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.ititle{font-size:20px;font-weight:700;color:var(--white)}
+.isub{font-size:12.5px;color:var(--muted);max-width:490px;line-height:1.7}
+.istats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.istat{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border:1px solid var(--border);
+  border-radius:var(--r-md);background:var(--card);min-width:88px}
+.isv{font-family:var(--fm);font-size:17px;font-weight:700;color:var(--cyan)}
+.isl{font-size:9px;color:var(--muted)}
+.startbtn{display:inline-flex;align-items:center;gap:9px;padding:12px 30px;background:transparent;
+  border:1.5px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:var(--fm);font-size:12px;
+  font-weight:700;letter-spacing:3px;cursor:pointer;position:relative;overflow:hidden;
+  transition:color .25s,box-shadow .25s;isolation:isolate}
+.startbtn::before{content:'';position:absolute;inset:0;background:var(--cyan);transform:translateX(-101%);transition:transform .3s;z-index:-1}
+.startbtn:hover{color:var(--bg);box-shadow:0 0 24px var(--cglow)}
+.startbtn:hover::before{transform:translateX(0)}
+.startbtn:disabled{opacity:.35;cursor:not-allowed}
+.startbtn:disabled:hover{color:var(--cyan);box-shadow:none}
+.startbtn:disabled:hover::before{transform:translateX(-101%)}
+
+/* setup */
+.setupwrap{display:flex;flex-direction:column;gap:14px;padding:4px 0 24px;max-width:660px}
+.setuphdr{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 8px 2px}
+.setuptitle{font-size:17px;font-weight:700;color:var(--white)}
+.setupsub{font-size:11.5px;color:var(--muted);max-width:480px;line-height:1.65}
+.setupcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:15px 17px;display:flex;flex-direction:column;gap:12px}
+.setupcard-title{font-family:var(--fm);font-size:8px;letter-spacing:2.5px;color:var(--cyan)}
+.batchrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+.field-lbl{font-family:var(--fm);font-size:7px;letter-spacing:1.5px;color:var(--muted)}
+.field input{background:rgba(0,0,0,.35);border:1px solid var(--lborder);border-radius:7px;color:var(--white);
+  font-family:var(--fm);font-size:14px;font-weight:700;padding:9px 11px;width:100%;outline:none;transition:.18s}
+.field input:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,245,255,.15)}
+.unitgroup{display:flex;gap:4px;background:rgba(0,0,0,.3);border:1px solid var(--lborder);border-radius:8px;padding:3px}
+.unitbtn{font-family:var(--fm);font-size:10px;font-weight:700;color:var(--muted);background:transparent;border:none;
+  border-radius:var(--r-sm);padding:7px 13px;cursor:pointer;transition:.16s}
+.unitbtn:hover{color:var(--text)}
+.unitbtn.on{color:var(--bg);background:var(--cyan);box-shadow:0 0 9px var(--cglow)}
+.xrfgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.xrfitem{display:flex;flex-direction:column;gap:4px}
+.xrfitem input{background:rgba(0,0,0,.3);border:1px solid var(--lborder);border-radius:var(--r-sm);color:var(--text);
+  font-family:var(--fm);font-size:12px;font-weight:700;padding:7px 9px;width:100%;outline:none;transition:.16s}
+.xrfitem input:focus{border-color:var(--cyan)}
+.xrfitem input:disabled{opacity:.45;cursor:not-allowed}
+.xrfitem-lbl{font-size:10px;color:var(--muted)}
+.xrftotal{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:7px;
+  border:1px solid var(--border);background:rgba(0,245,255,.03);font-family:var(--fm);font-size:10px;margin-top:2px}
+.xrftotal.warn{border-color:rgba(255,214,0,.35);background:rgba(255,214,0,.05)}
+.xrftotal.warn .xrftotal-val{color:var(--yellow)}
+.xrftotal-lbl{color:var(--muted);letter-spacing:1px}
+.xrftotal-val{color:var(--green);font-weight:700}
+.setuptoggle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.setuptoggle-t{font-size:11.5px;font-weight:600;color:var(--text)}
+.setuptoggle-s{font-size:9.5px;color:var(--muted)}
+.swtch{width:38px;height:21px;border-radius:11px;background:rgba(255,255,255,.08);border:1px solid var(--lborder);
+  position:relative;cursor:pointer;flex-shrink:0;transition:.2s}
+.swtch::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--muted);transition:.2s}
+.swtch.on{background:rgba(0,245,255,.18);border-color:var(--cyan)}
+.swtch.on::after{left:19px;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.calcpreview{background:var(--card2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.calcpreview-title{font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--muted)}
+.calcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.calcitem{display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:rgba(0,0,0,.25);
+  border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.03)}
+.calcitem-l{font-size:8.5px;color:var(--muted)}
+.calcitem-v{font-family:var(--fm);font-size:12.5px;font-weight:700;color:var(--cyan)}
+.calcitem-v.g{color:var(--green)} .calcitem-v.o{color:var(--orange)}
+.fieldwarn{font-size:9.5px;color:var(--yellow)}
+
+/* stage header */
+.schdr{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.sch-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;
+  background:linear-gradient(90deg,rgba(0,245,255,.07),transparent);border-bottom:1px solid var(--border)}
+.scnum{font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--cyan);
+  border:1px solid var(--border);border-radius:5px;padding:3px 8px}
+.sctitle{font-size:15px;font-weight:700;color:var(--white);flex:1;min-width:170px}
+.scrx{font-family:var(--fm);font-size:10px;color:var(--orange);background:var(--odim);
+  border:1px solid rgba(255,107,53,.25);border-radius:5px;padding:4px 9px}
+.scdone-badge{font-family:var(--fm);font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--bg);
+  background:var(--green);border-radius:4px;padding:3px 7px}
+.sch-body{padding:14px 16px;display:flex;flex-direction:column;gap:13px}
+.sc-obj{font-size:12.5px;line-height:1.72;color:var(--text);max-width:68ch}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));gap:8px}
+.spec{display:flex;flex-direction:column;gap:3px;padding:9px 11px;background:rgba(0,0,0,.25);
+  border:1px solid var(--lborder);border-radius:var(--r-sm)}
+.spl{font-size:8.5px;color:var(--muted)}
+.spv{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--white)}
+.spv.hot{color:var(--orange)} .spv.warn{color:var(--yellow)}
+
+/* vessel utilisation */
+.util{display:flex;flex-direction:column;gap:5px;padding:10px 12px;border:1px solid var(--lborder);
+  border-radius:var(--r-sm);background:rgba(0,0,0,.22)}
+.util-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:10px;color:var(--muted)}
+.util-val{font-family:var(--fm);font-weight:700;color:var(--cyan)}
+.util-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.util-fill{height:100%;background:var(--cyan);border-radius:3px;transition:width .5s ease}
+.util-fill.warn{background:var(--yellow)} .util-fill.over{background:var(--red)}
+.util-note{font-size:9.5px;color:var(--yellow)}
+
+/* action path */
+.subpath-wrap{display:flex;flex-direction:column;gap:10px}
+.subpath-title{font-family:var(--fm);font-size:8px;letter-spacing:2.5px;color:var(--cyan)}
+.subpath{display:flex;flex-direction:column}
+.subnode{position:relative;display:flex;gap:12px;padding-bottom:12px}
+.sn-line{position:absolute;left:17px;top:36px;bottom:0;width:1px;background:var(--lborder)}
+.subnode:last-child .sn-line{display:none}
+.subnode.ss-done .sn-line{background:rgba(57,255,20,.3)}
+.sn-icon{width:35px;height:35px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;
+  border-radius:50%;border:1px solid var(--lborder);background:var(--card);z-index:1;transition:.2s}
+.subnode.ss-done .sn-icon{border-color:var(--green);background:var(--gdim)}
+.subnode.ss-active .sn-icon{border-color:var(--cyan);background:var(--cdim);box-shadow:0 0 14px var(--cglow)}
+.subnode.ss-timer .sn-icon{border-color:var(--orange);background:var(--odim);animation:tpulse 2.2s ease-in-out infinite}
+.subnode.ss-locked{opacity:.42}
+.sn-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding-top:4px}
+.sn-label{font-family:var(--fm);font-size:7.5px;letter-spacing:1.6px;color:var(--muted)}
+.subnode.ss-done .sn-label{color:var(--green)}
+.subnode.ss-active .sn-label{color:var(--cyan)}
+.subnode.ss-timer .sn-label{color:var(--orange)}
+.sn-title{font-size:12.5px;font-weight:600;color:var(--white)}
+.subnode.ss-locked .sn-title{color:var(--muted)}
+.sn-desc{font-size:11.5px;line-height:1.65;color:var(--text);max-width:64ch}
+.sn-timer{display:flex;align-items:baseline;gap:8px;margin-top:3px}
+.sn-timer-val{font-family:var(--fm);font-size:21px;font-weight:700;color:var(--orange);letter-spacing:1px}
+.sn-timer-lbl{font-family:var(--fm);font-size:7.5px;letter-spacing:1.6px;color:var(--muted)}
+.sn-progwrap{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:2px;max-width:320px}
+.sn-prog{height:100%;width:0;background:var(--orange);border-radius:2px;transition:width .4s linear}
+.sn-btn{align-self:flex-start;margin-top:5px;padding:8px 15px;border-radius:var(--r-sm);cursor:pointer;
+  font-family:var(--fm);font-size:10px;font-weight:700;color:var(--bg);background:var(--cyan);
+  border:1px solid var(--cyan);transition:.18s}
+.sn-btn:hover{box-shadow:0 0 16px var(--cglow);transform:translateY(-1px)}
+
+.actbtn{width:100%;padding:13px 18px;border-radius:var(--r-md);cursor:pointer;font-family:var(--fm);
+  font-size:11.5px;font-weight:700;letter-spacing:2px;color:var(--cyan);background:var(--cdim);
+  border:1.5px solid var(--cyan);transition:.2s}
+.actbtn:hover{color:var(--bg);background:var(--cyan);box-shadow:0 0 22px var(--cglow)}
+.donecard{display:flex;align-items:center;gap:11px;padding:9px 13px;border-radius:var(--r-md);
+  border:1px solid rgba(57,255,20,.22);background:var(--gdim)}
+.dcheck{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:var(--green);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.dname{font-size:11.5px;font-weight:600;color:var(--text)}
+.dmeta{font-family:var(--fm);font-size:8px;letter-spacing:1.4px;color:var(--green);margin-top:1px}
+.lockcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:44px 20px;
+  border:1px dashed var(--lborder);border-radius:var(--r-lg);background:rgba(0,0,0,.2)}
+.lockbig{font-size:30px;opacity:.6}
+.locktitle{font-size:14px;font-weight:700;color:var(--text)}
+.locksub{font-size:11.5px;color:var(--muted)}
+.hazard{display:flex;gap:9px;align-items:flex-start;padding:10px 13px;border-radius:var(--r-sm);
+  border:1px solid rgba(255,214,0,.3);background:rgba(255,214,0,.05)}
+.hazard-i{font-size:13px;line-height:1.3}
+.hazard-t{font-size:11px;line-height:1.6;color:var(--yellow);max-width:64ch}
+.completebanner{display:flex;flex-direction:column;align-items:center;text-align:center;gap:13px;padding:30px 22px;
+  border:1px solid rgba(57,255,20,.3);border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(57,255,20,.07),rgba(0,0,0,.2))}
+.cbicon{font-size:34px;color:var(--green);filter:drop-shadow(0 0 14px rgba(57,255,20,.5))}
+.cbtitle{font-size:16px;font-weight:700;color:var(--white)}
+.cbsub{font-size:12px;color:var(--muted);max-width:460px;line-height:1.65}
+.cbstats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.cbstat{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border:1px solid var(--border);
+  border-radius:var(--r-md);background:var(--card);min-width:100px}
+.cbsv{font-family:var(--fm);font-size:15px;font-weight:700;color:var(--green)}
+.cbsl{font-size:9px;color:var(--muted)}
+.restartbtn{padding:10px 24px;border-radius:8px;cursor:pointer;font-family:var(--fm);font-size:10.5px;
+  font-weight:700;letter-spacing:2px;color:var(--muted);background:transparent;border:1px solid var(--lborder);transition:.18s}
+.restartbtn:hover{color:var(--cyan);border-color:var(--cyan)}
+
+/* ── 7. RIGHT PANEL ───────────────────────────────────────── */
+.rp{border-left:1px solid var(--border);background:rgba(6,11,20,.5);display:flex;flex-direction:column;min-height:0}
+.rphdr{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.rplbl{font-family:var(--fm);font-size:7.5px;letter-spacing:2.5px;color:var(--cyan)}
+.rpbody{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 26px;display:flex;flex-direction:column;gap:11px}
+.pgroup,.phl{display:flex;flex-direction:column;gap:6px}
+.ptitle,.phlt{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;color:var(--muted);margin-bottom:1px}
+.phlt{color:var(--cyan)}
+.prow{display:flex;align-items:baseline;justify-content:space-between;gap:9px;font-size:10.5px}
+.pk{color:var(--muted);min-width:0}
+.pv{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
+.pv.c{color:var(--cyan)} .pv.g{color:var(--green)} .pv.o{color:var(--orange)}
+.pdiv{height:1px;background:var(--lborder);margin:2px 0}
+.eqcard{display:flex;flex-direction:column;gap:4px;padding:9px 11px;border:1px solid var(--lborder);
+  border-radius:var(--r-sm);background:rgba(0,0,0,.22)}
+.eqtag{font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--cyan)}
+.eqname{font-size:10px;color:var(--text)}
+.eqspec{font-size:9.5px;line-height:1.55;color:var(--muted)}
+.subprog-block{display:flex;flex-direction:column;gap:7px}
+.subprog-title{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;color:var(--muted);margin-bottom:2px}
+.subprog-item{display:flex;align-items:flex-start;gap:8px}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:var(--lborder);flex-shrink:0;margin-top:4px}
+.sp-dot.done{background:var(--green)}
+.sp-dot.active{background:var(--cyan);box-shadow:0 0 7px var(--cyan)}
+.sp-dot.timer{background:var(--orange);box-shadow:0 0 7px var(--orange)}
+.sp-name{font-size:10px;line-height:1.45;color:var(--text)}
+.sp-name.locked{color:var(--muted)}
+
+/* ── 8. MODAL ─────────────────────────────────────────────── */
+.mov{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(3,6,12,.84);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.mov.open{display:flex}
+.mbox{position:relative;width:100%;max-width:620px;max-height:84vh;overflow-y:auto;background:var(--card);
+  border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.mcl{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:var(--r-sm);cursor:pointer;
+  background:transparent;border:1px solid var(--lborder);color:var(--muted);font-size:12px;transition:.18s}
+.mcl:hover{color:var(--cyan);border-color:var(--cyan)}
+.ftable{width:100%;border-collapse:collapse;font-family:var(--fm);font-size:11px;margin-top:4px}
+.ftable th{text-align:left;padding:7px 9px;font-size:8px;letter-spacing:1.6px;color:var(--cyan);
+  border-bottom:1px solid var(--border);font-weight:700}
+.ftable td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);vertical-align:top}
+.ftable td.num,.ftable th.num{text-align:right}
+.ftable tr:last-child td{border-bottom:none;color:var(--white)}
+.eqlist{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+.eqrow{display:flex;gap:11px;padding:10px 12px;border:1px solid var(--lborder);border-radius:var(--r-sm);background:rgba(0,0,0,.22)}
+.eqrow-tag{font-family:var(--fm);font-size:10px;font-weight:700;color:var(--cyan);min-width:54px;flex-shrink:0}
+.eqrow-body{display:flex;flex-direction:column;gap:3px;min-width:0}
+.eqrow-name{font-size:11px;font-weight:600;color:var(--white)}
+.eqrow-spec{font-size:10px;line-height:1.6;color:var(--muted)}
+
+/* calculation sheet */
+.csec{margin-top:16px}
+.csec-t{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--cyan);margin-bottom:7px}
+.cinputs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.cin{display:flex;flex-direction:column;gap:4px}
+.cin-l{font-size:9px;color:var(--muted)}
+.cin input{background:rgba(0,0,0,.3);border:1px solid var(--lborder);border-radius:var(--r-sm);color:var(--white);
+  font-family:var(--fm);font-size:12px;font-weight:700;padding:7px 9px;width:100%;outline:none;transition:.16s}
+.cin input:focus{border-color:var(--cyan)}
+.effwrap{display:flex;flex-direction:column;gap:7px;padding:12px 13px;border:1px solid var(--lborder);
+  border-radius:var(--r-sm);background:rgba(0,0,0,.22)}
+.efftop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.effval{font-family:var(--fm);font-size:22px;font-weight:700;color:var(--cyan)}
+.effbadge{font-family:var(--fm);font-size:8px;font-weight:700;letter-spacing:1.5px;padding:3px 8px;border-radius:4px;color:var(--bg)}
+.effbadge.good{background:var(--green)} .effbadge.fair{background:var(--yellow)} .effbadge.low{background:var(--red)}
+.effbar{height:7px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;position:relative}
+.efffill{height:100%;border-radius:4px;transition:width .5s ease}
+.efffill.good{background:var(--green)} .efffill.fair{background:var(--yellow)} .efffill.low{background:var(--red)}
+.effscale{display:flex;justify-content:space-between;font-family:var(--fm);font-size:7px;color:var(--muted)}
+.cbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cbtn{padding:9px 15px;border-radius:var(--r-sm);cursor:pointer;font-family:var(--fm);font-size:9.5px;
+  font-weight:700;letter-spacing:1px;color:var(--cyan);background:var(--cdim);border:1px solid var(--cyan);transition:.18s}
+.cbtn:hover{color:var(--bg);background:var(--cyan)}
+.cbtn.ghost{color:var(--muted);background:transparent;border-color:var(--lborder)}
+.cbtn.ghost:hover{color:var(--red);border-color:var(--red);background:transparent}
+.logempty{font-size:10.5px;color:var(--muted);padding:10px 2px}
+.logname{color:var(--cyan);cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.logload{font-family:var(--fm);font-size:8px;color:var(--muted);background:transparent;border:1px solid var(--lborder);
+  border-radius:4px;padding:2px 6px;cursor:pointer;transition:.16s}
+.logload:hover{color:var(--cyan);border-color:var(--cyan)}
+.eff-good{color:var(--green)} .eff-fair{color:var(--yellow)} .eff-low{color:var(--red)}
+.cnote{font-size:9.5px;line-height:1.6;color:var(--muted);margin-top:8px}
+
+/* print — only the calculation sheet goes on paper */
+@media print{
+  @page{margin:14mm}
+  body{height:auto;overflow:visible;background:#fff;color:#111;display:block}
+  #bgCanvas,.scanline,.hdr,.pipe,.layout,.mcl,.cbtns,.cinputs{display:none!important}
+  .mov{display:block!important;position:static;padding:0;background:#fff;backdrop-filter:none}
+  .mbox{max-width:none;max-height:none;overflow:visible;border:none;box-shadow:none;background:#fff;padding:0}
+  .mbox *{color:#111!important}
+  .csec-t,.rplbl{color:#0a6b7a!important;border-bottom:1px solid #ccc;padding-bottom:3px}
+  .ftable th{color:#0a6b7a!important;border-bottom:1px solid #999}
+  .ftable td{border-bottom:1px solid #e2e2e2}
+  .effwrap,.eqrow{background:#fff;border:1px solid #ccc}
+  .effbadge{border:1px solid #111;background:#fff!important;color:#111!important}
+  .cnote{color:#555!important}
+}
+
+/* ── 9. RESPONSIVE ────────────────────────────────────────── */
+@media (max-width:1120px){
+  .layout{grid-template-columns:212px minmax(0,1fr) 244px}
+  .xrfgrid,.calcgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:960px){
+  body{height:auto;min-height:100vh;overflow:auto}
+  .layout{display:flex;flex-direction:column}
+  .lsb{border-right:none;border-bottom:1px solid var(--border);max-height:240px}
+  .rp{border-left:none;border-top:1px solid var(--border)}
+  .rpbody{max-height:360px}
+  .center{padding:16px 14px 32px}
+  .hdr{padding:9px 14px} .pipe{padding:8px 14px 6px}
+}
+@media (max-width:560px){
+  .xrfgrid,.calcgrid{grid-template-columns:1fr 1fr}
+  .st{font-size:13.5px}
+  .badge{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+<div class="scanline" aria-hidden="true"></div>
+
+<header class="hdr">
+  <div class="hl">
+    <div class="logo">
+      <svg viewBox="0 0 40 46" width="30" height="34" aria-hidden="true">
+        <polygon points="20,2 38,12 38,34 20,44 2,34 2,12" fill="none" stroke="#00f5ff" stroke-width="1.5"/>
+        <text x="50%" y="56%" text-anchor="middle" fill="#00f5ff" font-size="10" font-family="monospace" dominant-baseline="middle">Zn</text>
+      </svg>
+    </div>
+    <div><span class="co">JAMP INDUSTRIES</span><span class="st">Plant ZnO Line — chloride route</span></div>
+  </div>
+  <div class="hr2">
+    <div class="badge" id="feedBasisBadge"><span class="bl">FEED BASIS</span><span class="bv">800 kg zinc ash</span></div>
+    <div class="badge" id="outBadge"><span class="bl">BATCH OUTPUT</span><span class="bv g">500 kg ZnO</span></div>
+    <button class="fbtn" type="button" onclick="openCalc()">Calculation sheet</button>
+    <button class="fbtn" type="button" onclick="openFeed()">Feed table</button>
+    <button class="fbtn" type="button" onclick="openEquip()">Equipment register</button>
+    <div class="ffwrap" title="Demo speed — speeds up all hold timers">
+      <span class="fflbl">DEMO SPEED</span>
+      <button class="ffbtn on" type="button" data-ff="1" onclick="setFF(1)">1×</button>
+      <button class="ffbtn" type="button" data-ff="60" onclick="setFF(60)">60×</button>
+      <button class="ffbtn" type="button" data-ff="300" onclick="setFF(300)">300×</button>
+      <button class="ffbtn" type="button" data-ff="9999" onclick="setFF(9999)">MAX</button>
+    </div>
+    <div class="sdwrap"><span class="sd" id="sd"></span><span class="slbl" id="slbl">READY</span></div>
+  </div>
+</header>
+
+<div class="pipe">
+  <div class="pipebar"><div class="pipefill" id="pf"></div></div>
+  <div class="pipelabels" id="pl"></div>
+</div>
+
+<div class="layout">
+  <aside class="lsb scroll" id="lsb"></aside>
+  <section class="center scroll" id="center"></section>
+  <aside class="rp">
+    <div class="rphdr"><span class="rplbl">EQUIPMENT &amp; MASS BALANCE</span></div>
+    <div class="rpbody scroll" id="rpbody"></div>
+  </aside>
+</div>
+
+<div class="mov" id="mov" onclick="closeMOuter(event)">
+  <div class="mbox scroll">
+    <button class="mcl" type="button" onclick="closeM()" aria-label="Close">✕</button>
+    <div id="mcon"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   1. PLANT DATA   2. SCALING   3. STAGE BUILDER
+   4. STATE        5. RENDER    6. PROCESS CONTROL
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. PLANT DATA ────────────────────────────────────────── */
+/* Feed assay — same reference ash as the lab protocol. */
+var DEFAULT_XRF = {ZnO:69.40, Cl:28.80, Fe2O3:0.500, Al2O3:0.379, SiO2:0.125, CaO:0.085, PbO:0.178, SO3:0.060, K2O:0.005};
+var XRF_LABELS  = {ZnO:'ZnO', Cl:'Cl salts', Fe2O3:'Fe₂O₃', Al2O3:'Al₂O₃', SiO2:'SiO₂', CaO:'CaO', PbO:'PbO', SO3:'SO₃', K2O:'K₂O'};
+
+/* Equipment register — taken from the plant flowsheet. */
+var EQUIP = {
+  'ST-1' :{name:'Raw material storage', spec:'10 KL zinc ash storage, feeds T-01 through P-1 / P-2.'},
+  'ST-2' :{name:'Acid storage', spec:'2 KL acid storage, supplies the leach acid to T-01.'},
+  'ST-3' :{name:'Alkali storage', spec:'Caustic / alkali solution storage feeding the precipitation circuit.'},
+  'ST-4' :{name:'Water and filtrate storage', spec:'Wash water and filtrate holding tank, tied to the well supply and the RO feed.'},
+  'WELL' :{name:'Well water supply', spec:'Raw water source for make-up and cake washing.'},
+  'T-01' :{name:'Leach reactor', spec:'12 KL HDPE spiral tank. Dia 2200 mm, height 3200 mm, shell 15/18/20 mm, bottom 20 mm, top 12 mm. Design temp 80 °C. MS agitator with HDPE coating, 7.5 HP.'},
+  'T-02' :{name:'Purification tank', spec:'10 KL HDPE spiral tank. Dia 2200 mm, height 2700 mm, shell 15/18/20 mm, bottom 20 mm, top 12 mm. Design temp 80 °C. MS agitator, 7.5 HP.'},
+  'T-03' :{name:'Alkali preparation tank', spec:'10 KL HDPE spiral tank. Dia 2200 mm, height 2700 mm, shell 15/18/20 mm, bottom 20 mm, top 12 mm. Design temp 80 °C. MS agitator, 7.5 HP.'},
+  'T-04' :{name:'Precipitation reactor', spec:'20 KL HDPE spiral tank. Dia 2700 mm, height 3600 mm, shell 18/20/25 mm, bottom 28 mm, top 15 mm. Design temp 80 °C. MS agitator, 10 HP.'},
+  'FP-01':{name:'Residue filter press', spec:'Model 18×18×07, plate 460×460 mm, 6 chambers (5 recessed + 2 end plates). 0.25 m²/chamber, 1.50 m²/press. Cake 5 L/chamber, 30 L/press. Manual closing. Feed 4 kg/cm², design 5 kg/cm². Recessed chamber type, polypropylene, centre feed, cake 40 ±2 mm, open delivery through individual spigots, double side.'},
+  'FP-02':{name:'Sludge filter press', spec:'Model 36×36×41, plate 910×910 mm, 40 chambers (39 recessed + 2 end plates). 1.32 m²/chamber, 52.80 m²/press. Cake 30 L/chamber, 1200 L/press. Hydraulic closing. Feed 4 kg/cm², design 5 kg/cm², max 85 °C. Polypropylene, centre feed, cake 40 ±2 mm, open delivery through nozzles. Feed inlet 3" NB.'},
+  'FP-03':{name:'Product filter press', spec:'Model 36×36×55, plate 910×910 mm, 54 chambers (53 recessed + 2 end plates). 1.32 m²/chamber, 71.28 m²/press. Cake 30 L/chamber, 1620 L/press. Hydraulic closing. Feed 4 kg/cm², design 5 kg/cm², max 85 °C. Polypropylene, centre feed, cake 40 ±2 mm, closed delivery. Feed inlet 3" NB, air inlet 2" NB, wash inlet 2" NB, filtrate outlet 2" NB ×2.'},
+  'P-1'  :{name:'Transfer pump', spec:'Horizontal 50×40×140. Acidic / alkaline duty, ambient. 10 m³/h at 15 m head, 2900 rpm, 3 HP, UHMWPE, positive suction.'},
+  'P-2'  :{name:'Transfer pump', spec:'Horizontal 50×40×140. Acidic / alkaline duty, ambient. 10 m³/h at 15 m head, 2900 rpm, 3 HP, UHMWPE, positive suction.'},
+  'P-3'  :{name:'Acid dosing pump', spec:'Horizontal 50×40×140, 10 m³/h at 15 m head, 3 HP, UHMWPE.'},
+  'P-4'  :{name:'FP-01 feed pump', spec:'Horizontal 50×40×140, 10 m³/h at 15 m head, 3 HP, UHMWPE.'},
+  'P-5'  :{name:'Filtrate transfer pump', spec:'Horizontal 50×40×140, 10 m³/h at 15 m head, 3 HP, UHMWPE.'},
+  'P-6'  :{name:'FP-02 feed pump', spec:'Horizontal 50×40×140, 10 m³/h at 15 m head, 3 HP, UHMWPE.'},
+  'P-7'  :{name:'Precipitation transfer pump', spec:'Horizontal 50×40×140, 10 m³/h at 15 m head, 3 HP, UHMWPE.'},
+  'P-8'  :{name:'FP-03 feed pump', spec:'Horizontal 50×40×140, 10 m³/h at 15 m head, 3 HP, UHMWPE.'},
+  'DRYER':{name:'Cake dryer', spec:'Operating band 200–300 °C. Converts the washed hydroxide cake to zinc oxide.'},
+  'MILL' :{name:'Mill', spec:'Size reduction of the dried oxide before packing.'},
+  'PACK' :{name:'Packaging', spec:'Weighing and bagging of the finished ZnO.'},
+  'RO'   :{name:'RO filter', spec:'Treats the chloride filtrate. Permeate is reused in T-01, concentrate goes to the 1.5 KL NaCl storage.'}
+};
+
+/* Molar masses, g/mol — every quantity below is derived from these,
+   not from a fixed recipe, so the batch rescales exactly with the assay. */
+var MW = {ZnO:81.38, HCl:36.46, ZnCl2:136.28, NaOH:40.00, ZnOH2:99.40, NaCl:58.44, Fe2O3:159.69, FeOH3:106.87};
+
+/* Plant ratios carried over from the JAMP ZnO process calculator.
+   Reference batch on that sheet is 866 kg of zinc ash:
+     process water     13,995.51 L / 866 kg  =  16.1611 L per kg of ash
+     hydrogen peroxide    216.50 L / 866 kg  =   0.2500 L per kg of ash
+   HCl solution density is taken as 1.20 kg/L at every strength. */
+var BASE_FEED_KG = 866;
+var PLANT = {
+  waterLPerKg  : 13995.51/866,
+  h2o2LPerKg   : 216.50/866,
+  hclDensity   : 1.20,
+  naohSolnPct  : 20,
+  naohSolnDens : 1.22,
+  cakeMoisture : 0.40,
+  cakeDensity  : 1.40
+};
+/* Working excess over stoichiometry that is actually charged. */
+var EXCESS = {hcl:1.10, naoh:1.05};
+/* Recovery band against theoretical zinc. 0.832 of theory is the 500 kg
+   marked on the flowsheet for an 866 kg charge. */
+var REC = {low:0.832, nom:0.850, high:0.900};
+/* How the total process water splits across the circuit. */
+var WATER = {leach:0.45, caustic:0.18, wash:0.25, misc:0.12};
+
+/* Vessel capacities in litres, for the utilisation checks. */
+var CAP = {'T-01':12000,'T-02':10000,'T-03':10000,'T-04':20000,'ST-1':10000,'ST-2':2000,'ST-4':15000,
+           'FP-01':30,'FP-02':1200,'FP-03':1620};
+
+/* ── 2. BATCH STATE + SCALING ─────────────────────────────── */
+var BATCH = {
+  configured:false,
+  feedKg:BASE_FEED_KG,
+  unit:'kg',
+  znoPct:DEFAULT_XRF.ZnO,     /* ZnO content of the ash — drives every reaction quantity */
+  hclStrength:32,             /* strength of the acid actually in ST-2, % w/w */
+  actualKg:0,                 /* optional: measured yield, for efficiency tracking */
+  xrf:Object.assign({},DEFAULT_XRF),
+  useCustomXrf:false,
+  log:[]                      /* session batch history */
+};
+
+function unitToKg(v,u){v=parseFloat(v)||0;return u==='t'?v*1000:v;}
+function kgToUnit(kg,u){return u==='t'?kg/1000:kg;}
+function fmtNum(n,dp){dp=dp===undefined?2:dp;if(!isFinite(n))return '0';
+  return (Math.round(n*Math.pow(10,dp))/Math.pow(10,dp)).toString();}
+function fmtMass(kg){if(kg>=1000)return fmtNum(kg/1000,2)+' t';return fmtNum(kg,kg<10?2:1)+' kg';}
+function fmtVol(L){if(L>=1000)return fmtNum(L/1000,2)+' KL';return fmtNum(L,L<10?2:0)+' L';}
+function activeXrf(){
+  if(BATCH.useCustomXrf) return BATCH.xrf;
+  var x=Object.assign({},DEFAULT_XRF);
+  x.ZnO=BATCH.znoPct;          /* the charge-card ZnO% overrides the reference grade */
+  return x;
+}
+function xrfTotalPct(){var t=0,x=activeXrf();for(var k in x)t+=parseFloat(x[k])||0;return t;}
+
+function getScaledRecipe(){
+  var x      = activeXrf();
+  var feedKg = BATCH.feedKg;
+  var znoPct = parseFloat(x.ZnO)||0;
+  var hclPct = parseFloat(BATCH.hclStrength)||32;
+
+  /* ── stoichiometry ──────────────────────────────────────────
+     ZnO + 2HCl → ZnCl₂ + H₂O
+     ZnCl₂ + 2NaOH → Zn(OH)₂ + 2NaCl
+     Zn(OH)₂ → ZnO + H₂O
+     Everything keys off the moles of ZnO actually present in the ash. */
+  var znoFeedKg = feedKg*znoPct/100;
+  var molZn     = znoFeedKg*1000/MW.ZnO;
+  var hclKg     = 2*molZn*MW.HCl/1000;
+  var naohKg    = 2*molZn*MW.NaOH/1000;
+  var zncl2Kg   = molZn*MW.ZnCl2/1000;
+  var znoh2Kg   = molZn*MW.ZnOH2/1000;
+  var naclKg    = 2*molZn*MW.NaCl/1000;
+  var znoTheoKg = molZn*MW.ZnO/1000;
+  /* Fe₂O₃ in the ash reports as Fe(OH)₃ in the purification sludge */
+  var feoh3Kg   = feedKg*(parseFloat(x.Fe2O3)||0)/100*(2*MW.FeOH3/MW.Fe2O3);
+
+  /* ── charges actually made up ── */
+  var hclSolnL     = hclKg/(hclPct/100)/PLANT.hclDensity;   /* theoretical */
+  var hclChargeL   = hclSolnL*EXCESS.hcl;                    /* with working excess */
+  var naohChargeKg = naohKg*EXCESS.naoh;
+  var naohSolnL    = naohChargeKg/(PLANT.naohSolnPct/100)/PLANT.naohSolnDens;
+
+  /* ── utilities, on the plant ratios ── */
+  var processWaterL = feedKg*PLANT.waterLPerKg;
+  var h2o2L         = feedKg*PLANT.h2o2LPerKg;
+  var chargeWaterL  = processWaterL*WATER.leach;
+  var washWaterL    = processWaterL*WATER.wash;
+  var miscWaterL    = processWaterL*WATER.misc;
+
+  /* ── streams ── */
+  var blackResidueKg = feedKg*(20/866);                      /* 20 kg per 866 kg on the flowsheet */
+  var otherOxPct     = (parseFloat(x.Al2O3)||0)+(parseFloat(x.CaO)||0)+(parseFloat(x.PbO)||0);
+  var impuritySolids = feoh3Kg + feedKg*otherOxPct/100*1.4;  /* as hydroxides / sulfates */
+  var sludgeKg       = impuritySolids/0.35;                  /* wet cake at ~35% solids */
+  var leachVolL      = chargeWaterL + hclChargeL + feedKg*0.35;
+  var liquorVolL     = leachVolL*0.94;
+  var precipVolL     = liquorVolL + naohSolnL;
+  var znoh2RecovKg   = znoh2Kg*REC.nom;
+  var wetCakeKg      = znoh2RecovKg/(1-PLANT.cakeMoisture);
+  var wetCakeL       = wetCakeKg/PLANT.cakeDensity;
+  var driedKg        = znoh2RecovKg*MW.ZnO/MW.ZnOH2;
+  var brineL         = liquorVolL*0.95 + washWaterL;
+  var permeateL      = brineL*0.75;
+  var naclConcL      = brineL - permeateL;
+
+  var actualKg = parseFloat(BATCH.actualKg)||0;
+  return {
+    feedKg:feedKg, znoPct:znoPct, hclPct:hclPct, znoFeedKg:znoFeedKg, molZn:molZn,
+    /* reagents */
+    hclKg:hclKg, hclSolnL:hclSolnL, hclChargeL:hclChargeL,
+    naohStoichKg:naohKg, naohFlakesKg:naohChargeKg, naohSolnL:naohSolnL,
+    h2o2L:h2o2L, processWaterL:processWaterL, chargeWaterL:chargeWaterL,
+    washWaterL:washWaterL, miscWaterL:miscWaterL, purifAlkaliL:liquorVolL*0.02,
+    /* theoretical products */
+    zncl2Kg:zncl2Kg, znoh2Kg:znoh2Kg, naclKg:naclKg, feoh3Kg:feoh3Kg, znoTheoKg:znoTheoKg,
+    /* streams and volumes */
+    blackResidueKg:blackResidueKg, sludgeKg:sludgeKg,
+    leachVolL:leachVolL, liquorVolL:liquorVolL, precipVolL:precipVolL,
+    wetCakeKg:wetCakeKg, wetCakeL:wetCakeL, driedKg:driedKg,
+    brineL:brineL, permeateL:permeateL, naclConcL:naclConcL,
+    /* expected output and efficiency */
+    znoLowKg:znoTheoKg*REC.low, znoTargetKg:znoTheoKg*REC.nom, znoHighKg:znoTheoKg*REC.high,
+    actualKg:actualKg, efficiency: znoTheoKg>0 ? actualKg/znoTheoKg*100 : 0
+  };
+}
+function effBand(p){ return p>=90?'good' : p>=75?'fair' : 'low'; }
+
+/* ── 3. STAGE BUILDER ─────────────────────────────────────── */
+function buildSteps(){
+  var R = getScaledRecipe();
+  return [
+  { id:1, name:"Feed charging", short:"Charging", tags:['ST-1','P-1','T-01'], dur:60*60, durLabel:"60 min", rx:null,
+    obj:"Charge the batch: recycled water first, then the weighed zinc ash from ST-1 into the leach reactor T-01. Water goes in before solids so the agitator is never started against a dry bed.",
+    specs:[{l:"Zinc ash",v:fmtMass(R.feedKg)},{l:"Charge water",v:fmtVol(R.chargeWaterL)},{l:"Transfer pump",v:"P-1, 10 m³/h"},{l:"Agitator",v:"7.5 HP"},{l:"Lot size",v:"50 kg bags"}],
+    vessel:{tag:'T-01', volL:R.chargeWaterL},
+    subs:[
+      {icon:"🔍",title:"Confirm T-01 is empty and lined up",desc:"Check the reactor is drained, the bottom valve is shut and the FP-01 feed line is isolated. Log the previous batch number as closed.",manual:true},
+      {icon:"💧",title:"Charge "+fmtVol(R.chargeWaterL)+" of recycled water",desc:"Take RO permeate from the recovery circuit into T-01 via P-2. Use well water only to top up if permeate is short.",manual:true},
+      {icon:"🌀",title:"Start the agitator",desc:"Start the 7.5 HP agitator once the impeller is submerged. Confirm free rotation and no vibration before charging solids.",manual:true},
+      {icon:"🪣",title:"Charge "+fmtMass(R.feedKg)+" of zinc ash",desc:"Add the ash from ST-1 in 50 kg lots so it disperses instead of rafting on the surface. Record each lot weight on the batch sheet.",manual:true},
+      {icon:"🧪",title:"Draw a feed sample for XRF",desc:"Take a composite sample of the charged ash and send it for assay. The ZnO grade on that report is what the reagent quantities are based on.",manual:true}
+    ],
+    ph:[{k:"Feed",v:fmtMass(R.feedKg)},{k:"Water",v:fmtVol(R.chargeWaterL)},{k:"Vessel",v:"T-01, 12 KL"}]},
+
+  { id:2, name:"Acid leaching", short:"Leaching", tags:['ST-2','P-3','T-01'], dur:4*3600, durLabel:"4 hours",
+    rx:"ZnO + 2HCl → ZnCl₂ + H₂O",
+    obj:"Dose hydrochloric acid from ST-2 into the agitated slurry. The zinc oxide dissolves as zinc chloride and the unreactive carbon and metallics stay behind as black residue.",
+    specs:[{l:"HCl at "+fmtNum(R.hclPct,1)+"%",v:fmtVol(R.hclChargeL)},{l:"Stoichiometric",v:fmtVol(R.hclSolnL)},{l:"HCl as 100%",v:fmtMass(R.hclKg)},{l:"Temperature",v:"70–80 °C",hot:true},{l:"Endpoint pH",v:"4.5–5.0",warn:true},{l:"Batch volume",v:fmtVol(R.leachVolL)}],
+    vessel:{tag:'T-01', volL:R.leachVolL},
+    hazard:"The reaction is exothermic and evolves hydrogen where metallic zinc is present. Dose slowly, keep the vent clear, and hold below the 80 °C design temperature of T-01.",
+    subs:[
+      {icon:"🔗",title:"Line up ST-2 through P-3 to T-01",desc:"Open the acid line, confirm the dosing valve throttles properly and check the pH probe and temperature sensor on T-01 are reading live.",timerFrac:0},
+      {icon:"🧯",title:"Dose "+fmtVol(R.hclChargeL)+" of acid over the first hour",desc:"That is "+fmtVol(R.hclSolnL)+" of "+fmtNum(R.hclPct,1)+"% HCl on stoichiometry plus a "+fmtNum((EXCESS.hcl-1)*100,0)+"% working excess, "+fmtMass(R.hclKg)+" of HCl as 100%. Add it gradually — fast dosing runs the temperature up and foams the vessel over.",timerFrac:0.03},
+      {icon:"🌡️",title:"Hold 70–80 °C on the batch",desc:"Watch the exotherm during dosing. If the temperature approaches 80 °C, stop dosing and let it fall before continuing.",timerFrac:0.25},
+      {icon:"⏳",title:"Hold under agitation for 3 hours",desc:"Keep the 7.5 HP agitator running for the full soak so the ash stays suspended and the leach goes to completion.",timerFrac:0.3},
+      {icon:"📊",title:"Check pH every 30 minutes",desc:"Log each reading. A pH that stops climbing means the free acid is consumed and the leach is finishing.",timerFrac:0.5},
+      {icon:"✅",title:"Confirm the endpoint at pH 4.5–5.0",desc:"Stop when the batch holds between pH 4.5 and 5.0 with no further movement. Draw a liquor sample for zinc assay before filtering.",timerFrac:0.93}
+    ],
+    ph:[{k:"HCl "+fmtNum(R.hclPct,1)+"%",v:fmtVol(R.hclChargeL)},{k:"HCl as 100%",v:fmtMass(R.hclKg)},{k:"Temp.",v:"70–80 °C"},{k:"End pH",v:"4.5–5.0"}]},
+
+  { id:3, name:"Residue filtration", short:"FP-01", tags:['P-4','FP-01','T-02'], dur:90*60, durLabel:"90 min", rx:null,
+    obj:"Press the leached slurry through FP-01 to drop out the black residue. The filtrate is zinc chloride liquor and goes forward to T-02.",
+    specs:[{l:"Filter area",v:"1.50 m²"},{l:"Chambers",v:"6"},{l:"Cake capacity",v:"30 L/press"},{l:"Feed pressure",v:"4 kg/cm²",warn:true},{l:"Cake thickness",v:"40 ±2 mm"},{l:"Closing",v:"Manual"}],
+    vessel:{tag:'FP-01', volL:R.blackResidueKg*1.5},
+    subs:[
+      {icon:"🔩",title:"Close the plate pack by hand",desc:"FP-01 has a manual closing system. Torque evenly across the pack and confirm every cloth is seated flat before feeding.",manual:true},
+      {icon:"⛽",title:"Feed through P-4 at 4 kg/cm²",desc:"Bring the press up slowly. Do not exceed 4 kg/cm² feed pressure; the design limit is 5 kg/cm².",manual:true},
+      {icon:"👁️",title:"Watch the filtrate clarity",desc:"Cloudy filtrate at the spigots means a cloth has blown. Stop, isolate the chamber and re-seat it before continuing.",manual:true},
+      {icon:"📉",title:"Run until the flow tails off",desc:"When filtrate flow drops and pressure holds at setpoint, the chambers are full. Stop the pump and blow the feed line clear.",manual:true},
+      {icon:"🗑️",title:"Discharge and weigh the black residue",desc:"Open the pack and drop the cake. Expect around "+fmtMass(R.blackResidueKg)+". Weigh it, log it and bag it for the residue store.",manual:true},
+      {icon:"➡️",title:"Send the filtrate to T-02",desc:"Transfer the clear zinc chloride liquor to T-02 via P-5, then wash the cloths before the press is left standing.",manual:true}
+    ],
+    ph:[{k:"Area",v:"1.50 m²"},{k:"Residue",v:"~"+fmtMass(R.blackResidueKg)},{k:"Feed",v:"4 kg/cm²"},{k:"Cake",v:"40 ±2 mm"}]},
+
+  { id:4, name:"Liquor purification", short:"Purification", tags:['P-5','T-02'], dur:2*3600, durLabel:"2 hours",
+    rx:"Fe²⁺ → Fe³⁺ → Fe(OH)₃ ↓",
+    obj:"Clean the iron, lead and cadmium out of the zinc chloride liquor in T-02. The chemical oxidises the iron and the alkali lifts the pH just far enough to drop it out without touching the zinc.",
+    specs:[{l:"H₂O₂ solution",v:fmtVol(R.h2o2L)},{l:"H₂O₂ ratio",v:"0.25 L per kg ash"},{l:"Alkali solution",v:fmtVol(R.purifAlkaliL)},{l:"Target pH",v:"5.0–5.5",warn:true},{l:"Temperature",v:"60–70 °C",hot:true},{l:"Fe(OH)₃ expected",v:"~"+fmtMass(R.feoh3Kg)}],
+    vessel:{tag:'T-02', volL:R.liquorVolL},
+    subs:[
+      {icon:"🛢️",title:"Transfer the liquor into T-02",desc:"Pump the FP-01 filtrate across with P-5 and record the volume received — roughly "+fmtVol(R.liquorVolL)+".",timerFrac:0},
+      {icon:"🌡️",title:"Raise the batch to 60–70 °C",desc:"Warm the tank under agitation. Iron drops out cleanly in this band and filters far better than cold.",timerFrac:0.05},
+      {icon:"⚗️",title:"Add "+fmtVol(R.h2o2L)+" of hydrogen peroxide",desc:"Charged at the plant ratio of 0.25 L per kg of ash. The peroxide oxidises ferrous iron to ferric so it will drop out as Fe(OH)₃ instead of staying in solution. Add it under good agitation and give it 15 minutes before any alkali goes in.",timerFrac:0.2},
+      {icon:"🐢",title:"Dose alkali slowly to pH 5.0–5.5",desc:"Add "+fmtVol(R.purifAlkaliL)+" of alkali gradually against the pH indicator. Overshooting past 5.5 starts pulling zinc out with the iron.",timerFrac:0.3},
+      {icon:"⏳",title:"Hold 45 minutes to grow the floc",desc:"Keep it stirring gently. A coarse floc filters quickly; a fine one blinds the FP-02 cloths.",timerFrac:0.6},
+      {icon:"🧪",title:"Check the iron before filtering",desc:"Spot-test the liquor for residual iron. Expect about "+fmtMass(R.feoh3Kg)+" of Fe(OH)₃ from this feed. If iron is still high, add a little more peroxide and hold again rather than carrying it forward.",timerFrac:0.93}
+    ],
+    ph:[{k:"H₂O₂",v:fmtVol(R.h2o2L)},{k:"Alkali",v:fmtVol(R.purifAlkaliL)},{k:"Fe(OH)₃",v:"~"+fmtMass(R.feoh3Kg)},{k:"pH",v:"5.0–5.5"}]},
+
+  { id:5, name:"Sludge filtration", short:"FP-02", tags:['P-6','FP-02','T-03'], dur:2*3600, durLabel:"2 hours", rx:null,
+    obj:"Press the purified liquor through FP-02 to take out the iron and heavy-metal sludge. What comes through is clean zinc chloride ready for precipitation.",
+    specs:[{l:"Filter area",v:"52.80 m²"},{l:"Chambers",v:"40"},{l:"Cake capacity",v:"1200 L/press"},{l:"Closing",v:"Hydraulic"},{l:"Feed pressure",v:"4 kg/cm²",warn:true},{l:"Max temp",v:"85 °C",hot:true}],
+    vessel:{tag:'FP-02', volL:R.sludgeKg*1.6},
+    hazard:"The FP-02 sludge carries the iron, lead and cadmium taken out of the liquor. Handle it as hazardous waste and keep it out of the general residue stream.",
+    subs:[
+      {icon:"🔧",title:"Close the press hydraulically",desc:"Confirm the closing pressure reaches setpoint and holds. Check the plate pack is square before feeding.",timerFrac:0},
+      {icon:"⛽",title:"Feed through P-6 at 4 kg/cm²",desc:"Bring the press up slowly through the 3\" NB centre feed. Hold at 4 kg/cm² against the 5 kg/cm² design pressure.",timerFrac:0.05},
+      {icon:"👁️",title:"Watch the filtrate at the nozzles",desc:"FP-02 discharges through open nozzles, so every chamber is visible. Cloudy flow at one nozzle means that cloth needs attention.",timerFrac:0.15},
+      {icon:"📉",title:"Run to the end of the cycle",desc:"Stop when the filtrate tails off at full feed pressure. Blow the feed line clear before opening.",timerFrac:0.75},
+      {icon:"⚠️",title:"Discharge the sludge as hazardous waste",desc:"Drop the cake — around "+fmtMass(R.sludgeKg)+" — into a lined bin, weigh it and label it for the hazardous waste store.",timerFrac:0.9},
+      {icon:"➡️",title:"Send clean liquor to T-03",desc:"Transfer the clarified zinc chloride forward and wash the pack down before it is left standing.",timerFrac:0.96}
+    ],
+    ph:[{k:"Area",v:"52.80 m²"},{k:"Sludge",v:"~"+fmtMass(R.sludgeKg)},{k:"Closing",v:"Hydraulic"},{k:"Waste",v:"Hazardous"}]},
+
+  { id:6, name:"Caustic precipitation", short:"Precipitation", tags:['ST-3','T-03','P-7','T-04'], dur:3*3600, durLabel:"3 hours",
+    rx:"ZnCl₂ + 2NaOH → Zn(OH)₂ ↓ + 2NaCl",
+    obj:"Dissolve caustic soda flakes in T-03, then dose that solution into the zinc liquor in T-04. The zinc comes out as a white hydroxide and the chloride leaves as sodium chloride in the liquor.",
+    specs:[{l:"Caustic flakes",v:fmtMass(R.naohFlakesKg)},{l:"Stoichiometric",v:fmtMass(R.naohStoichKg)},{l:"As 20% solution",v:fmtVol(R.naohSolnL)},{l:"Target pH",v:"8.8–9.0",warn:true},{l:"Never exceed",v:"pH 9.5",hot:true},{l:"Zn(OH)₂ theory",v:fmtMass(R.znoh2Kg)}],
+    vessel:{tag:'T-04', volL:R.precipVolL},
+    hazard:"Dissolving caustic flakes releases a lot of heat. Add flakes to water, never the reverse, keep the T-03 solution below 60 °C and wear full face and hand protection.",
+    subs:[
+      {icon:"🧂",title:"Dissolve "+fmtMass(R.naohFlakesKg)+" of caustic flakes in T-03",desc:"Add the flakes to water slowly under agitation to make about "+fmtVol(R.naohSolnL)+" of 20% solution. Let it cool below 60 °C before it is used.",timerFrac:0},
+      {icon:"🛢️",title:"Transfer the zinc liquor into T-04",desc:"Pump the clean liquor across with P-7 and start the 10 HP agitator. Confirm the pH probe on T-04 is calibrated.",timerFrac:0.15},
+      {icon:"🐢",title:"Dose the caustic over 90 minutes",desc:"Add the solution steadily. Local over-dosing at the inlet redissolves zinc even when the bulk pH still reads low.",timerFrac:0.25},
+      {icon:"📊",title:"Check pH every 10 minutes",desc:"Log each reading. The white precipitate thickens quickly through pH 7 to 8.",timerFrac:0.35},
+      {icon:"🛑",title:"Stop between pH 8.8 and 9.0",desc:"Cut the dosing at 8.8. Above pH 9.5 the hydroxide redissolves as zincate and the batch yield drops.",timerFrac:0.75},
+      {icon:"⏳",title:"Age the slurry for 30 minutes",desc:"Keep it gently agitated so the crystals grow. A well-aged slurry filters and washes far better on FP-03.",timerFrac:0.85}
+    ],
+    ph:[{k:"NaOH flakes",v:fmtMass(R.naohFlakesKg)},{k:"Solution",v:fmtVol(R.naohSolnL)},{k:"Target pH",v:"8.8–9.0"},{k:"Vessel",v:"T-04, 20 KL"}]},
+
+  { id:7, name:"Product filtration and washing", short:"FP-03", tags:['P-8','FP-03','ST-4','WELL'], dur:3*3600, durLabel:"3 hours", rx:null,
+    obj:"Press the hydroxide slurry on FP-03, wash the chloride out of the cake through the dedicated wash inlet, then air-blow it before discharge. Washing quality here sets the final product purity.",
+    specs:[{l:"Filter area",v:"71.28 m²"},{l:"Chambers",v:"54"},{l:"Cake capacity",v:"1620 L/press"},{l:"Wash water",v:fmtVol(R.washWaterL)},{l:"Wash inlet",v:'2" NB'},{l:"Air inlet",v:'2" NB'},{l:"Cake thickness",v:"40 ±2 mm"},{l:"Wet cake",v:"~"+fmtMass(R.wetCakeKg)}],
+    vessel:{tag:'FP-03', volL:R.wetCakeL},
+    subs:[
+      {icon:"🔧",title:"Close FP-03 and confirm the seal",desc:"Hydraulic closing to setpoint. FP-03 has closed delivery, so leaks show at the pack rather than the outlets — check the pack edges once pressure is on.",timerFrac:0},
+      {icon:"⛽",title:"Feed the slurry through P-8",desc:"Feed at 4 kg/cm² through the 3\" NB inlet until the chambers are full and the filtrate falls away.",timerFrac:0.05},
+      {icon:"🚿",title:"Wash with "+fmtVol(R.washWaterL)+" through the wash inlet",desc:"Switch to the 2\" NB wash line and push clean water through the cake. Do not flood it — steady flow displaces the chloride, a surge just channels through.",timerFrac:0.4},
+      {icon:"🧪",title:"Test the wash filtrate for chloride",desc:"Sample at the outlet as washing proceeds. Keep washing until the chloride reading meets the product specification.",timerFrac:0.62},
+      {icon:"💨",title:"Air-blow the cake for 20 minutes",desc:"Blow through the 2\" NB air inlet to drive out free liquor. Every litre removed here is drying time saved.",timerFrac:0.8},
+      {icon:"📦",title:"Discharge and weigh the wet cake",desc:"Open the pack and drop the cake into clean trays or bins. Expect around "+fmtMass(R.wetCakeKg)+". Send the filtrate and wash water to the RO circuit.",timerFrac:0.9}
+    ],
+    ph:[{k:"Area",v:"71.28 m²"},{k:"Wash",v:fmtVol(R.washWaterL)},{k:"Wet cake",v:"~"+fmtMass(R.wetCakeKg)},{k:"Cake",v:"40 ±2 mm"}]},
+
+  { id:8, name:"Drying", short:"Dryer", tags:['DRYER'], dur:8*3600, durLabel:"8 hours",
+    rx:"Zn(OH)₂ → ZnO + H₂O",
+    obj:"Dry and convert the cake in the 200–300 °C band. Free water comes off first, then the hydroxide decomposes to zinc oxide.",
+    specs:[{l:"Temperature",v:"200–300 °C",hot:true},{l:"Wet cake in",v:"~"+fmtMass(R.wetCakeKg)},{l:"Dry out",v:"~"+fmtMass(R.driedKg)},{l:"Hold",v:"8 hours"},{l:"Target moisture",v:"< 0.5%"}],
+    subs:[
+      {icon:"🫙",title:"Load the cake evenly",desc:"Break up the cake and spread it to a consistent depth. Lumps dry on the outside and stay wet in the middle.",timerFrac:0},
+      {icon:"🔥",title:"Ramp to 200 °C and hold",desc:"Drive off the free moisture first at the bottom of the band before pushing the temperature up.",timerFrac:0.04},
+      {icon:"🌡️",title:"Raise to 250–300 °C for conversion",desc:"Once the surface moisture is gone, take it up the band. This is where the hydroxide converts to oxide.",timerFrac:0.35},
+      {icon:"👁️",title:"Check the colour at the halfway point",desc:"The material should be white to pale cream. Yellowing means it is running too hot — drop the setpoint.",timerFrac:0.5},
+      {icon:"🧪",title:"Check loss on ignition before discharge",desc:"Pull a sample and run an LOI. A high result means the conversion is incomplete and it needs longer.",timerFrac:0.9},
+      {icon:"📤",title:"Discharge and cool",desc:"Unload and let the oxide cool under cover. Hot powder picks up moisture from the air as it cools in the open.",timerFrac:0.96}
+    ],
+    ph:[{k:"Temp.",v:"200–300 °C"},{k:"Time",v:"8 h"},{k:"In",v:"~"+fmtMass(R.wetCakeKg)},{k:"Out",v:"~"+fmtMass(R.driedKg)}]},
+
+  { id:9, name:"Milling and packing", short:"Mill / pack", tags:['MILL','PACK'], dur:4*3600, durLabel:"4 hours", rx:null,
+    obj:"Mill the dried oxide to product fineness, take the release sample, then weigh off into bags. This is the last point where the batch can be held back.",
+    specs:[{l:"Feed",v:"~"+fmtMass(R.driedKg)},{l:"Packed output",v:fmtMass(R.znoLowKg)+"–"+fmtMass(R.znoHighKg)},{l:"Purity",v:"97–99%"},{l:"Bag size",v:"25 kg"},{l:"Bags",v:Math.round(R.znoTargetKg/25)+" approx."}],
+    subs:[
+      {icon:"⚙️",title:"Feed the oxide to the mill",desc:"Feed at a steady rate. Surging the mill gives an inconsistent particle size across the batch.",timerFrac:0},
+      {icon:"🕸️",title:"Screen the milled product",desc:"Screen to specification and return the oversize to the mill.",timerFrac:0.3},
+      {icon:"🧪",title:"Draw the release sample",desc:"Take a composite for XRF. Hold the batch until purity is confirmed at 97–99% — do not pack against an unreleased result.",timerFrac:0.55},
+      {icon:"⚖️",title:"Weigh off into 25 kg bags",desc:"Expect "+fmtMass(R.znoLowKg)+"–"+fmtMass(R.znoHighKg)+" packed, roughly "+Math.round(R.znoTargetKg/25)+" bags. Check the scale against a known weight first.",timerFrac:0.7},
+      {icon:"🏷️",title:"Label and log the batch",desc:"Mark every bag with the batch number and date, record the packed weight and file the assay against the batch sheet.",timerFrac:0.9}
+    ],
+    ph:[{k:"Packed",v:fmtMass(R.znoLowKg)+"–"+fmtMass(R.znoHighKg)},{k:"Purity",v:"97–99%"},{k:"Bags",v:"~"+Math.round(R.znoTargetKg/25)}]},
+
+  { id:10, name:"Effluent and water recovery", short:"RO recovery", tags:['ST-4','RO','T-01'], dur:6*3600, durLabel:"6 hours", rx:null,
+    obj:"Treat the chloride filtrate on the RO unit. Permeate goes back to T-01 as charge water for the next batch and the concentrate goes to the 1.5 KL salt storage.",
+    specs:[{l:"Brine feed",v:fmtVol(R.brineL)},{l:"Permeate recovered",v:fmtVol(R.permeateL)},{l:"NaCl in stream",v:"~"+fmtMass(R.naclKg)},{l:"Concentrate store",v:fmtVol(R.naclConcL)},{l:"Feed pH",v:"6.5–8.0",warn:true}],
+    vessel:{tag:'ST-4', volL:R.brineL},
+    subs:[
+      {icon:"🛢️",title:"Collect the filtrate in ST-4",desc:"Route the FP-03 filtrate and wash water to ST-4 and let any carry-over solids settle before the RO feed pump starts.",timerFrac:0},
+      {icon:"📊",title:"Neutralise the feed to pH 6.5–8.0",desc:"Correct the pH before the membranes see it. Feeding outside the band shortens membrane life quickly.",timerFrac:0.08},
+      {icon:"🧫",title:"Check the pre-filter",desc:"Confirm the cartridge filter ahead of the RO is clean. Suspended solids foul the membranes faster than dissolved salt does.",timerFrac:0.15},
+      {icon:"💧",title:"Run the RO and route permeate to T-01",desc:"Recover about "+fmtVol(R.permeateL)+" of permeate and hold it as charge water for the next batch.",timerFrac:0.25},
+      {icon:"🧂",title:"Send concentrate to the NaCl store",desc:"Route the concentrate to the "+fmtVol(R.naclConcL)+" storage. The batch generates roughly "+fmtMass(R.naclKg)+" of sodium chloride, so check the store has room before starting.",timerFrac:0.8},
+      {icon:"📝",title:"Log the water balance",desc:"Record permeate recovered, concentrate sent out and make-up water drawn from the well. This is what the recycle ratio is reported from.",timerFrac:0.94}
+    ],
+    ph:[{k:"Brine",v:fmtVol(R.brineL)},{k:"Permeate",v:fmtVol(R.permeateL)},{k:"NaCl",v:"~"+fmtMass(R.naclKg)},{k:"Feed pH",v:"6.5–8.0"}]}
+  ];
+}
+var STEPS = buildSteps();
+
+/* ── 4. RUN STATE ─────────────────────────────────────────── */
+var S = {started:false, current:0, status:{}, timers:{}, subStatus:{}, subCurrent:{}};
+function resetStepState(){
+  STEPS.forEach(function(s){
+    S.status[s.id]='locked';
+    S.subStatus[s.id]=s.subs.map(function(){return 'locked';});
+    S.subCurrent[s.id]=0;
+  });
+}
+function clearAllTimers(){
+  Object.keys(S.timers).forEach(function(k){ if(S.timers[k]&&S.timers[k].iid) clearInterval(S.timers[k].iid); });
+  S.timers={};
+}
+resetStepState();
+
+var FF=1;
+function setFF(v){
+  FF=v;
+  Array.prototype.forEach.call(document.querySelectorAll('.ffbtn'),function(b){
+    b.classList.toggle('on', parseInt(b.getAttribute('data-ff'),10)===v);
+  });
+  renderRP(S.current||null);
+}
+
+/* ── 5. RENDER ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',function(){
+  initBg(); renderPL(); renderSidebar(); renderCenter(); renderRP();
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); });
+});
+function initBg(){
+  var c=document.getElementById('bgCanvas'), ctx=c&&c.getContext?c.getContext('2d'):null, W,H,dots;
+  if(!ctx) return;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function resize(){
+    W=c.width=window.innerWidth; H=c.height=window.innerHeight; dots=[];
+    for(var i=0;i<55;i++) dots.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.3,
+      vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28, a:Math.random()*.32+.08});
+  }
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,245,255,0.035)'; ctx.lineWidth=1;
+    for(var x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(var y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    dots.forEach(function(d){
+      d.x+=d.vx; d.y+=d.vy;
+      if(d.x<0)d.x=W; if(d.x>W)d.x=0; if(d.y<0)d.y=H; if(d.y>H)d.y=0;
+      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,245,255,'+d.a+')'; ctx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener('resize',resize); resize(); frame();
+}
+function fmt(s){s=Math.max(0,Math.round(s));var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;
+  return h>0?pad(h)+':'+pad(m)+':'+pad(x):pad(m)+':'+pad(x);}
+function pad(n){return n<10?'0'+n:''+n;}
+function setSt(t,c){var d=document.getElementById('sd'),l=document.getElementById('slbl');
+  d.className='sd'+(c?' '+c:''); l.className='slbl'+(c?' '+c:''); l.textContent=t;}
+function renderPL(){
+  document.getElementById('pl').innerHTML=STEPS.map(function(s){
+    var c=S.status[s.id]==='done'?' class="ok"':(S.current===s.id?' class="now"':'');
+    return '<span'+c+'>'+s.short+'</span>';
+  }).join('');
+}
+function updatePipe(){
+  var done=STEPS.filter(function(s){return S.status[s.id]==='done';}).length;
+  document.getElementById('pf').style.width=(done/STEPS.length*100)+'%';
+  renderPL();
+}
+function updateBadges(){
+  var R=getScaledRecipe();
+  var f=document.getElementById('feedBasisBadge'), o=document.getElementById('outBadge');
+  if(f) f.querySelector('.bv').textContent=fmtMass(BATCH.feedKg)+' zinc ash';
+  if(o) o.querySelector('.bv').textContent=fmtMass(R.znoTargetKg)+' ZnO';
+}
+function tagHtml(t){
+  var cls = /^P-/.test(t) ? ' pump' : (t==='RO'||t==='WELL'||t==='MILL'||t==='PACK'||t==='DRYER') ? ' util' : '';
+  return '<span class="tag'+cls+'">'+t+'</span>';
+}
+
+/* sidebar */
+function renderSidebar(){
+  document.getElementById('lsb').innerHTML=STEPS.map(function(s){
+    var ss=S.status[s.id], cls=ss+((S.current===s.id&&ss!=='done')?' active':'');
+    var icon='', meta=s.durLabel;
+    if(ss==='locked'){ icon='<span class="slock">🔒</span>'; }
+    else if(ss==='running'){ var t=S.timers[s.id];
+      icon='<span class="mt" id="mt-'+s.id+'">'+(t?fmt(t.remaining):'--:--')+'</span>'; meta='Running'; }
+    else if(ss==='done'){ icon='<span class="slock" style="color:var(--green)">✓</span>'; meta='Complete'; }
+    else { icon='<span style="width:14px;display:inline-block"></span>'; }
+    return '<div class="sitem '+cls+'" onclick="gotoStep('+s.id+')">'+
+      '<div class="sirow"><div class="snb">'+(s.id<10?'0'+s.id:s.id)+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="sname">'+s.name+'</div><div class="smeta">'+meta+'</div></div>'+
+      icon+'</div>'+
+      '<div class="tagrow">'+s.tags.map(tagHtml).join('')+'</div>'+
+      ((ss!=='locked'&&ss!=='done')?'<div class="subdots">'+S.subStatus[s.id].map(function(st){
+        return '<i class="'+(st==='locked'?'':st)+'"></i>';}).join('')+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+function gotoStep(id){
+  if(S.status[id]==='locked') return;
+  S.current=id; renderSidebar(); renderCenter(); renderRP(id); renderPL();
+  document.getElementById('center').scrollTop=0;
+}
+
+/* centre */
+function renderCenter(){
+  var el=document.getElementById('center');
+  if(!BATCH.configured){ el.innerHTML=buildSetup(); return; }
+  if(!S.started){ el.innerHTML=buildIntro(); return; }
+  var step=STEPS[S.current-1], ss=S.status[step.id], html='';
+  STEPS.filter(function(s){return s.id<step.id&&S.status[s.id]==='done';}).slice(-2).forEach(function(s){
+    html+='<div class="donecard"><div class="dcheck">✓</div><div>'+
+      '<div class="dname">Stage '+s.id+': '+s.name+'</div>'+
+      '<div class="dmeta">COMPLETE — '+s.durLabel+'</div></div></div>';
+  });
+  if(ss==='locked'){
+    html+='<div class="lockcard"><div class="lockbig">🔐</div>'+
+      '<div class="locktitle">Stage '+step.id+' is locked</div>'+
+      '<div class="locksub">Close out the previous stage to open this one.</div></div>';
+  } else {
+    html+=buildStepHeader(step,ss)+buildSubPath(step);
+    if(ss==='unlocked'&&step.dur>0){
+      html+='<button class="actbtn" type="button" onclick="startTimer('+step.id+')">Start '+step.durLabel+' cycle</button>';
+    } else if(ss==='done'){
+      var next=STEPS[step.id];
+      if(next&&S.status[next.id]!=='locked'){
+        html+='<button class="actbtn" type="button" onclick="gotoStep('+next.id+')">Go to stage '+next.id+': '+next.name+'</button>';
+      } else if(!next){ html+=buildComplete(); }
+    }
+  }
+  el.innerHTML=html;
+}
+
+function buildSetup(){
+  var total=xrfTotalPct(), warn=(total>101||total<95)?'warn':'';
+  var R=getScaledRecipe();
+  var rows=Object.keys(BATCH.xrf).map(function(k){
+    return '<div class="xrfitem"><div class="xrfitem-lbl">'+XRF_LABELS[k]+'</div>'+
+      '<input type="number" step="0.001" min="0" max="100" data-xrf="'+k+'" value="'+BATCH.xrf[k]+'" '+
+      (BATCH.useCustomXrf?'':'disabled')+' oninput="onXrfInput(this)"/></div>';
+  }).join('');
+  return '<div class="setupwrap">'+
+    '<div class="setuphdr"><h2 class="setuptitle">Batch setup</h2>'+
+    '<p class="setupsub">Set the zinc ash charge for this batch and, if the assay is in, the XRF result. Acid, caustic, water volumes, cake weights and the expected ZnO output all rescale from these two inputs, and every vessel is checked against its capacity.</p></div>'+
+
+    '<div class="setupcard"><span class="setupcard-title">FEED CHARGE</span>'+
+      '<div class="batchrow">'+
+        '<div class="field"><span class="field-lbl">ZINC ASH PER BATCH</span>'+
+        '<input type="number" id="batchMassInput" min="0.001" step="any" value="'+fmtNum(kgToUnit(BATCH.feedKg,BATCH.unit),3)+'" oninput="onBatchMassInput(this)"/></div>'+
+        '<div class="unitgroup">'+['kg','t'].map(function(u){
+          return '<button class="unitbtn'+(BATCH.unit===u?' on':'')+'" type="button" data-unit="'+u+'" onclick="setBatchUnit(\''+u+'\')">'+(u==='t'?'tonne':'kg')+'</button>';
+        }).join('')+'</div>'+
+      '</div>'+
+      '<div class="batchrow">'+
+        '<div class="field"><span class="field-lbl">ZnO CONTENT OF THE ASH, %</span>'+
+        '<input type="number" id="znoPctInput" min="0" max="100" step="0.01" value="'+fmtNum(BATCH.znoPct,2)+'" '+(BATCH.useCustomXrf?'disabled':'')+' oninput="onZnoPctInput(this)"/></div>'+
+        '<div class="field"><span class="field-lbl">HCl STRENGTH, %</span>'+
+        '<input type="number" id="hclPctInput" min="1" max="100" step="0.1" value="'+fmtNum(BATCH.hclStrength,1)+'" oninput="onHclInput(this)"/></div>'+
+      '</div>'+
+      '<div class="fieldwarn" id="massWarn" style="display:none">Enter a charge greater than zero.</div>'+
+      '<div class="setuptoggle-s">Acid solution density taken as 1.20 kg/L at every strength. With the custom assay switched on, the ZnO figure comes from the assay grid below instead.</div>'+
+    '</div>'+
+
+    '<div class="setupcard">'+
+      '<div class="setuptoggle"><div>'+
+        '<div class="setuptoggle-t">Use a custom XRF assay</div>'+
+        '<div class="setuptoggle-s">Off uses the JAMP reference composition, 69.40% ZnO</div></div>'+
+        '<div class="swtch'+(BATCH.useCustomXrf?' on':'')+'" role="switch" tabindex="0" onclick="toggleCustomXrf()" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleCustomXrf();}"></div>'+
+      '</div>'+
+      '<div class="xrfgrid">'+rows+'</div>'+
+      '<div class="xrftotal '+warn+'" id="xrfTotalRow"><span class="xrftotal-lbl">TOTAL COMPOSITION</span>'+
+      '<span class="xrftotal-val" id="xrfTotalVal">'+fmtNum(total,2)+'%</span></div>'+
+    '</div>'+
+
+    '<div class="calcpreview"><span class="calcpreview-title">BATCH PREVIEW</span>'+
+      '<div class="calcgrid" id="calcGrid">'+buildCalcGridHtml(R)+'</div>'+
+      '<div id="capWarn"></div></div>'+
+
+    '<button class="startbtn" type="button" id="confirmSetupBtn" onclick="confirmSetup()" style="align-self:center">Build the batch sheet</button>'+
+  '</div>';
+}
+function buildCalcGridHtml(R){
+  return [
+    ['ZnO available in feed',fmtMass(R.znoFeedKg),''],
+    ['HCl '+fmtNum(R.hclPct,1)+'% required',fmtVol(R.hclChargeL),'o'],
+    ['NaOH flakes required',fmtMass(R.naohFlakesKg),'o'],
+    ['H₂O₂ solution required',fmtVol(R.h2o2L),'o'],
+    ['Process water',fmtVol(R.processWaterL),''],
+    ['Leach volume, T-01',fmtVol(R.leachVolL),''],
+    ['Wet cake, FP-03','~'+fmtMass(R.wetCakeKg),''],
+    ['ZnO theoretical',fmtMass(R.znoTheoKg),''],
+    ['ZnO packed',fmtMass(R.znoLowKg)+'–'+fmtMass(R.znoHighKg),'g']
+  ].map(function(r){
+    return '<div class="calcitem"><span class="calcitem-l">'+r[0]+'</span><span class="calcitem-v '+r[2]+'">'+r[1]+'</span></div>';
+  }).join('')+capWarnHtml(R);
+}
+function capWarnHtml(R){
+  var checks=[['T-01',R.leachVolL],['T-02',R.liquorVolL],['T-04',R.precipVolL],['FP-03',R.wetCakeL],['FP-02',R.sludgeKg*1.6]];
+  var over=checks.filter(function(c){return c[1]>CAP[c[0]];});
+  if(!over.length) return '';
+  return '<div class="util-note" style="grid-column:1/-1">Over capacity: '+
+    over.map(function(c){return c[0]+' needs '+fmtVol(c[1])+' against '+fmtVol(CAP[c[0]])+'';}).join(', ')+
+    '. Split the charge across more than one batch.</div>';
+}
+function onBatchMassInput(inp){
+  var raw=parseFloat(inp.value), w=document.getElementById('massWarn'), b=document.getElementById('confirmSetupBtn');
+  if(!raw||raw<=0){ if(w)w.style.display='block'; if(b)b.disabled=true; return; }
+  if(w)w.style.display='none'; if(b)b.disabled=false;
+  BATCH.feedKg=unitToKg(raw,BATCH.unit);
+  refreshCalcPreview();
+}
+function setBatchUnit(u){
+  var inp=document.getElementById('batchMassInput');
+  var kg=unitToKg(parseFloat(inp.value)||0,BATCH.unit);
+  BATCH.unit=u;
+  Array.prototype.forEach.call(document.querySelectorAll('.unitbtn'),function(b){
+    b.classList.toggle('on', b.getAttribute('data-unit')===u);
+  });
+  inp.value=fmtNum(kgToUnit(kg,u),3);
+  BATCH.feedKg=kg;
+  refreshCalcPreview();
+}
+function onZnoPctInput(inp){
+  var v=parseFloat(inp.value);
+  BATCH.znoPct = (isFinite(v)&&v>0) ? Math.min(100,v) : 0;
+  refreshCalcPreview();
+}
+function onHclInput(inp){
+  var v=parseFloat(inp.value);
+  BATCH.hclStrength = (isFinite(v)&&v>0) ? Math.min(100,v) : 32;
+  refreshCalcPreview();
+}
+function toggleCustomXrf(){
+  BATCH.useCustomXrf=!BATCH.useCustomXrf;
+  if(BATCH.useCustomXrf){ BATCH.xrf.ZnO=BATCH.znoPct; }      /* carry the entered grade in */
+  else { BATCH.xrf=Object.assign({},DEFAULT_XRF); BATCH.xrf.ZnO=BATCH.znoPct; }
+  renderCenter();
+}
+function onXrfInput(inp){
+  var key=inp.getAttribute('data-xrf');
+  BATCH.xrf[key]=parseFloat(inp.value)||0;
+  if(key==='ZnO') BATCH.znoPct=BATCH.xrf.ZnO;                /* keep both inputs agreeing */
+  refreshXrfTotal(); refreshCalcPreview();
+}
+function refreshXrfTotal(){
+  var total=xrfTotalPct(), row=document.getElementById('xrfTotalRow'), val=document.getElementById('xrfTotalVal');
+  if(!row||!val) return;
+  val.textContent=fmtNum(total,2)+'%';
+  row.classList.toggle('warn',(total>101||total<95));
+}
+function refreshCalcPreview(){
+  var g=document.getElementById('calcGrid');
+  if(g) g.innerHTML=buildCalcGridHtml(getScaledRecipe());
+}
+function confirmSetup(){
+  var raw=parseFloat(document.getElementById('batchMassInput').value);
+  if(!raw||raw<=0){ document.getElementById('massWarn').style.display='block'; return; }
+  BATCH.feedKg=unitToKg(raw,BATCH.unit);
+  BATCH.configured=true;
+  clearAllTimers();
+  STEPS=buildSteps();
+  resetStepState();
+  S.started=false; S.current=0;
+  setSt('READY','');
+  updateBadges(); renderPL(); renderSidebar(); renderCenter(); renderRP(); updatePipe();
+}
+function reopenSetup(){ BATCH.configured=false; renderCenter(); }
+
+function buildIntro(){
+  var R=getScaledRecipe();
+  return '<div class="intro"><div class="ihex"><svg viewBox="0 0 120 138" width="96" height="110" aria-hidden="true">'+
+    '<polygon points="60,4 114,34 114,104 60,134 6,104 6,34" fill="none" stroke="#00f5ff" stroke-width="1" opacity="0.3"/>'+
+    '<polygon points="60,14 104,39 104,99 60,124 16,99 16,39" fill="none" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>'+
+    '<text x="50%" y="48%" text-anchor="middle" fill="#00f5ff" font-size="22" font-family="monospace" font-weight="700" dominant-baseline="middle">ZnO</text>'+
+    '<text x="50%" y="65%" text-anchor="middle" fill="#8892a0" font-size="7" font-family="monospace" dominant-baseline="middle">PLANT LINE</text></svg></div>'+
+    '<h2 class="ititle">Ten stages, ST-1 through to packing</h2>'+
+    '<p class="isub">Batch control for '+fmtMass(BATCH.feedKg)+' of zinc ash on the chloride route. Each stage carries its own equipment tags, setpoints and operator actions, with vessel utilisation checked against the installed capacity as you go.</p>'+
+    '<div class="istats">'+
+      '<div class="istat"><span class="isv">10</span><span class="isl">Stages</span></div>'+
+      '<div class="istat"><span class="isv">'+fmtVol(R.leachVolL)+'</span><span class="isl">Leach volume</span></div>'+
+      '<div class="istat"><span class="isv">'+fmtMass(R.znoTargetKg)+'</span><span class="isl">ZnO per batch</span></div>'+
+      '<div class="istat"><span class="isv">97–99%</span><span class="isl">Purity</span></div>'+
+    '</div>'+
+    '<button class="fbtn" type="button" onclick="reopenSetup()">Edit charge or XRF</button>'+
+    '<button class="startbtn" type="button" onclick="startProcess()">Start batch</button></div>';
+}
+
+function buildStepHeader(step,ss){
+  var html='<div class="schdr"><div class="sch-top">'+
+    '<span class="scnum">STAGE '+(step.id<10?'0'+step.id:step.id)+'</span>'+
+    '<span class="sctitle">'+step.name+'</span>'+
+    (step.rx?'<span class="scrx">'+step.rx+'</span>':'')+
+    (ss==='done'?'<span class="scdone-badge">COMPLETE</span>':'')+
+    '</div><div class="sch-body">'+
+    '<div class="tagrow">'+step.tags.map(tagHtml).join('')+'</div>'+
+    '<p class="sc-obj">'+step.obj+'</p>'+
+    '<div class="specs">'+step.specs.map(function(sp){
+      return '<div class="spec"><span class="spl">'+sp.l+'</span><span class="spv'+(sp.hot?' hot':'')+(sp.warn?' warn':'')+'">'+sp.v+'</span></div>';
+    }).join('')+'</div>';
+  if(step.vessel) html+=buildUtil(step.vessel);
+  if(step.hazard) html+='<div class="hazard"><span class="hazard-i">⚠</span><span class="hazard-t">'+step.hazard+'</span></div>';
+  return html+'</div></div>';
+}
+function buildUtil(v){
+  var cap=CAP[v.tag]||0, pct=cap?(v.volL/cap*100):0;
+  var cls = pct>100?'over' : pct>85?'warn' : '';
+  var note = pct>100 ? 'Charge exceeds '+v.tag+' capacity — split the batch.' :
+             pct>85  ? 'Running close to the top of '+v.tag+'. Watch the freeboard.' : '';
+  return '<div class="util"><div class="util-top">'+
+    '<span>'+v.tag+' utilisation — '+fmtVol(v.volL)+' of '+fmtVol(cap)+'</span>'+
+    '<span class="util-val">'+fmtNum(pct,0)+'%</span></div>'+
+    '<div class="util-bar"><div class="util-fill '+cls+'" style="width:'+Math.min(100,pct)+'%"></div></div>'+
+    (note?'<span class="util-note">'+note+'</span>':'')+'</div>';
+}
+function buildSubPath(step){
+  var statuses=S.subStatus[step.id];
+  var html='<div class="subpath-wrap"><span class="subpath-title">OPERATOR ACTIONS</span><div class="subpath">';
+  step.subs.forEach(function(sub,i){
+    var st=statuses[i], timerHtml='', btnHtml='';
+    var label=st==='done'?'DONE':st==='active'?'DO THIS NOW':st==='timer'?'IN PROGRESS':'WAITING';
+    if(st==='timer'){
+      var t=S.timers[step.id], pct=t?((step.dur-t.remaining)/step.dur*100):0;
+      timerHtml='<div class="sn-timer"><span class="sn-timer-val" id="std-'+step.id+'">'+fmt(t?t.remaining:0)+'</span>'+
+        '<span class="sn-timer-lbl">REMAINING</span></div>'+
+        '<div class="sn-progwrap"><div class="sn-prog" id="sprg-'+step.id+'" style="width:'+pct+'%"></div></div>';
+    }
+    if(st==='active'&&sub.manual){
+      btnHtml='<button class="sn-btn" type="button" onclick="doneManualSub('+step.id+','+i+')">Done, next action</button>';
+    }
+    html+='<div class="subnode ss-'+st+'"><div class="sn-line"></div><div class="sn-icon">'+sub.icon+'</div>'+
+      '<div class="sn-content"><span class="sn-label">'+label+'</span>'+
+      '<div class="sn-title">'+sub.title+'</div>'+
+      '<div class="sn-desc">'+(st!=='locked'?sub.desc:'')+'</div>'+timerHtml+btnHtml+'</div></div>';
+  });
+  return html+'</div></div>';
+}
+function buildComplete(){
+  var R=getScaledRecipe();
+  return '<div class="completebanner"><div class="cbicon">⬡</div>'+
+    '<div class="cbtitle">Batch closed — ZnO packed</div>'+
+    '<div class="cbsub">All ten stages signed off. '+fmtMass(BATCH.feedKg)+' of zinc ash processed through the chloride route, with the water returned to T-01 and the salt sent to concentrate storage.</div>'+
+    '<div class="cbstats">'+
+      '<div class="cbstat"><span class="cbsv">'+fmtMass(R.znoLowKg)+'–'+fmtMass(R.znoHighKg)+'</span><span class="cbsl">ZnO packed</span></div>'+
+      '<div class="cbstat"><span class="cbsv">97–99%</span><span class="cbsl">Purity</span></div>'+
+      '<div class="cbstat"><span class="cbsv">'+fmtVol(R.permeateL)+'</span><span class="cbsl">Water recycled</span></div>'+
+      '<div class="cbstat"><span class="cbsv">'+fmtMass(R.naclKg)+'</span><span class="cbsl">NaCl out</span></div>'+
+    '</div><button class="restartbtn" type="button" onclick="restart()">Start the next batch</button></div>';
+}
+
+/* right panel */
+function renderRP(stepId){
+  var el=document.getElementById('rpbody'), step=stepId?STEPS[stepId-1]:null, R=getScaledRecipe(), html='';
+  if(step){
+    html+='<div class="subprog-block"><span class="subprog-title">ACTIONS PROGRESS</span>'+
+      step.subs.map(function(sub,i){
+        var st=S.subStatus[step.id][i];
+        return '<div class="subprog-item"><div class="sp-dot'+(st==='locked'?'':' '+st)+'"></div>'+
+          '<span class="sp-name'+(st==='locked'?' locked':'')+'">'+sub.title+'</span></div>';
+      }).join('')+'</div><div class="pdiv"></div>'+
+      '<div class="phl"><span class="phlt">STAGE '+step.id+' SETPOINTS</span>'+
+      step.ph.map(function(p){return '<div class="prow"><span class="pk">'+p.k+'</span><span class="pv c">'+p.v+'</span></div>';}).join('')+
+      '</div><div class="pdiv"></div>'+
+      '<div class="pgroup"><div class="ptitle">EQUIPMENT ON THIS STAGE</div>'+
+      step.tags.map(function(t){
+        var e=EQUIP[t]; if(!e) return '';
+        return '<div class="eqcard"><span class="eqtag">'+t+'</span><span class="eqname">'+e.name+'</span>'+
+               '<span class="eqspec">'+e.spec+'</span></div>';
+      }).join('')+'</div><div class="pdiv"></div>';
+  }
+  var x=activeXrf();
+  html+='<div class="pgroup"><div class="ptitle">FEED</div>'+
+    '<div class="prow"><span class="pk">Zinc ash</span><span class="pv">'+fmtMass(BATCH.feedKg)+'</span></div>'+
+    '<div class="prow"><span class="pk">ZnO in feed</span><span class="pv">'+fmtMass(BATCH.feedKg*(x.ZnO/100))+'</span></div>'+
+    '<div class="prow"><span class="pk">Cl salts</span><span class="pv">'+fmtMass(BATCH.feedKg*(x.Cl/100))+'</span></div>'+
+    '<div class="prow"><span class="pk">Fe₂O₃</span><span class="pv">'+fmtMass(BATCH.feedKg*(x.Fe2O3/100))+'</span></div>'+
+    '<div class="prow"><span class="pk">PbO</span><span class="pv">'+fmtMass(BATCH.feedKg*(x.PbO/100))+'</span></div>'+
+  '</div><div class="pdiv"></div>'+
+  '<div class="pgroup"><div class="ptitle">REAGENTS REQUIRED</div>'+
+    '<div class="prow"><span class="pk">HCl '+fmtNum(R.hclPct,1)+'%</span><span class="pv o">'+fmtVol(R.hclChargeL)+'</span></div>'+
+    '<div class="prow"><span class="pk">NaOH flakes</span><span class="pv o">'+fmtMass(R.naohFlakesKg)+'</span></div>'+
+    '<div class="prow"><span class="pk">H₂O₂ solution</span><span class="pv o">'+fmtVol(R.h2o2L)+'</span></div>'+
+    '<div class="prow"><span class="pk">Process water</span><span class="pv">'+fmtVol(R.processWaterL)+'</span></div>'+
+    '<div class="prow"><span class="pk">of which wash</span><span class="pv">'+fmtVol(R.washWaterL)+'</span></div>'+
+  '</div><div class="pdiv"></div>'+
+  '<div class="pgroup"><div class="ptitle">THEORETICAL PRODUCTS</div>'+
+    '<div class="prow"><span class="pk">ZnCl₂</span><span class="pv">'+fmtMass(R.zncl2Kg)+'</span></div>'+
+    '<div class="prow"><span class="pk">Fe(OH)₃</span><span class="pv">'+fmtMass(R.feoh3Kg)+'</span></div>'+
+    '<div class="prow"><span class="pk">Zn(OH)₂</span><span class="pv">'+fmtMass(R.znoh2Kg)+'</span></div>'+
+    '<div class="prow"><span class="pk">NaCl</span><span class="pv">'+fmtMass(R.naclKg)+'</span></div>'+
+    '<div class="prow"><span class="pk">ZnO theoretical</span><span class="pv c">'+fmtMass(R.znoTheoKg)+'</span></div>'+
+  '</div><div class="pdiv"></div>'+
+  '<div class="pgroup"><div class="ptitle">EXPECTED OUTPUTS</div>'+
+    '<div class="prow"><span class="pk">ZnO packed</span><span class="pv g">'+fmtMass(R.znoLowKg)+'–'+fmtMass(R.znoHighKg)+'</span></div>'+
+    '<div class="prow"><span class="pk">Black residue</span><span class="pv">'+fmtMass(R.blackResidueKg)+'</span></div>'+
+    '<div class="prow"><span class="pk">Hazardous sludge</span><span class="pv">'+fmtMass(R.sludgeKg)+'</span></div>'+
+    '<div class="prow"><span class="pk">Water recycled</span><span class="pv c">'+fmtVol(R.permeateL)+'</span></div>'+
+  '</div><div class="pdiv"></div>'+
+  '<div class="pgroup"><div class="ptitle">DEMO SPEED</div>'+
+    '<div class="prow"><span class="pk">Multiplier</span><span class="pv c">'+(FF>=9999?'MAX':FF+'×')+'</span></div>'+
+    '<div class="prow"><span class="pk">8 h dry takes</span><span class="pv">'+fmt(FF>=9999?12:(8*3600)/FF)+'</span></div>'+
+  '</div>';
+  el.innerHTML=html;
+}
+
+/* ── 6. PROCESS CONTROL ───────────────────────────────────── */
+function startProcess(){
+  S.started=true; S.current=1; S.status[1]='unlocked';
+  S.subStatus[1][0]='active'; S.subCurrent[1]=0;
+  setSt('ACTIVE','active');
+  renderSidebar(); renderCenter(); renderRP(1); updatePipe();
+}
+function doneManualSub(stepId,idx){
+  var subs=STEPS[stepId-1].subs;
+  S.subStatus[stepId][idx]='done';
+  if(idx+1<subs.length){
+    S.subStatus[stepId][idx+1]='active'; S.subCurrent[stepId]=idx+1;
+    renderSidebar(); renderCenter(); renderRP(stepId);
+  } else { completeStep(stepId); }
+}
+function startTimer(stepId){
+  var step=STEPS[stepId-1];
+  if(!step||step.dur===0||S.timers[stepId]) return;
+  S.status[stepId]='running';
+  setSt('RUNNING','running');
+  S.timers[stepId]={total:step.dur, remaining:step.dur, iid:null};
+  S.subStatus[stepId][0]='timer'; S.subCurrent[stepId]=0;
+  renderCenter(); renderSidebar(); renderRP(stepId);
+
+  var iid=setInterval(function(){
+    var t=S.timers[stepId];
+    if(!t){ clearInterval(iid); return; }
+    var stepSec = FF>=9999 ? t.total/12 : FF;
+    t.remaining=Math.max(0, t.remaining-stepSec);
+    var pct=(t.total-t.remaining)/t.total;
+
+    var mt=document.getElementById('mt-'+stepId); if(mt) mt.textContent=fmt(t.remaining);
+    var std=document.getElementById('std-'+stepId); if(std) std.textContent=fmt(t.remaining);
+    var sp=document.getElementById('sprg-'+stepId); if(sp) sp.style.width=(pct*100)+'%';
+
+    var subs=step.subs, statuses=S.subStatus[stepId], newActive=0, changed=false;
+    for(var i=0;i<subs.length;i++){ if(subs[i].timerFrac!==undefined && pct>=subs[i].timerFrac) newActive=i; }
+    for(var j=0;j<subs.length;j++){
+      var want=j<newActive?'done':j===newActive?'timer':'locked';
+      if(statuses[j]!==want){ statuses[j]=want; changed=true; }
+    }
+    if(changed && S.current===stepId){
+      var pathEl=document.querySelector('.subpath-wrap');
+      if(pathEl) pathEl.outerHTML=buildSubPath(step);
+      renderSidebar(); renderRP(stepId);
+      var std2=document.getElementById('std-'+stepId); if(std2) std2.textContent=fmt(t.remaining);
+      var sp2=document.getElementById('sprg-'+stepId); if(sp2) sp2.style.width=(pct*100)+'%';
+    } else if(changed){ renderSidebar(); }
+
+    if(t.remaining<=0){ clearInterval(iid); delete S.timers[stepId]; completeStep(stepId); }
+  },1000);
+  S.timers[stepId].iid=iid;
+}
+function completeStep(stepId){
+  S.status[stepId]='done';
+  S.subStatus[stepId]=S.subStatus[stepId].map(function(){return 'done';});
+  var next=STEPS[stepId];
+  if(next){
+    S.status[next.id]='unlocked';
+    S.subStatus[next.id][0]='active';
+    S.subCurrent[next.id]=0;
+    S.current=next.id;
+  }
+  setSt(next?'ACTIVE':'COMPLETE', next?'active':'');
+  updatePipe(); renderSidebar(); renderCenter(); renderRP(next?next.id:stepId);
+  document.getElementById('center').scrollTop=0;
+}
+function restart(){
+  clearAllTimers();
+  S.started=false; S.current=0; S.status={}; S.subStatus={}; S.subCurrent={};
+  resetStepState();
+  setSt('READY','');
+  updatePipe(); renderSidebar(); renderCenter(); renderRP();
+}
+
+/* modals */
+function openFeed(){
+  var x=activeXrf(), totalPct=0, totalMass=0;
+  var rows=Object.keys(DEFAULT_XRF).map(function(k){
+    var pct=parseFloat(x[k])||0, m=BATCH.feedKg*(pct/100);
+    totalPct+=pct; totalMass+=m;
+    return '<tr><td>'+XRF_LABELS[k]+'</td><td class="num">'+fmtNum(pct,3)+'</td><td class="num">'+fmtMass(m)+'</td></tr>';
+  }).join('');
+  document.getElementById('mcon').innerHTML=
+    '<div style="margin-bottom:10px"><div class="rplbl">'+(BATCH.useCustomXrf?'CUSTOM XRF':'REFERENCE XRF')+'</div>'+
+    '<h3 style="font-size:15px;font-weight:700;color:var(--white);margin-top:5px">'+fmtMass(BATCH.feedKg)+' zinc ash — composition</h3></div>'+
+    '<table class="ftable"><thead><tr><th>Component</th><th class="num">%</th><th class="num">Mass</th></tr></thead><tbody>'+rows+
+    '<tr><td><strong>Total</strong></td><td class="num"><strong>'+fmtNum(totalPct,2)+'</strong></td><td class="num"><strong>'+fmtMass(totalMass)+'</strong></td></tr>'+
+    '</tbody></table>'+
+    (BATCH.configured?'<button class="fbtn" type="button" style="margin-top:14px" onclick="closeM();reopenSetup()">Edit charge or XRF</button>':'');
+  document.getElementById('mov').classList.add('open');
+}
+function openEquip(){
+  var order=['ST-1','ST-2','ST-3','ST-4','WELL','T-01','T-02','T-03','T-04','FP-01','FP-02','FP-03',
+             'P-1','P-2','P-3','P-4','P-5','P-6','P-7','P-8','DRYER','MILL','PACK','RO'];
+  document.getElementById('mcon').innerHTML=
+    '<div style="margin-bottom:6px"><div class="rplbl">PLANT FLOWSHEET</div>'+
+    '<h3 style="font-size:15px;font-weight:700;color:var(--white);margin-top:5px">Equipment register</h3></div>'+
+    '<div class="eqlist">'+order.map(function(t){
+      var e=EQUIP[t]; if(!e) return '';
+      return '<div class="eqrow"><span class="eqrow-tag">'+t+'</span><div class="eqrow-body">'+
+        '<span class="eqrow-name">'+e.name+'</span><span class="eqrow-spec">'+e.spec+'</span></div></div>';
+    }).join('')+'</div>';
+  document.getElementById('mov').classList.add('open');
+}
+/* ── CALCULATION SHEET ────────────────────────────────────── */
+function openCalc(){
+  document.getElementById('mcon').innerHTML=buildCalcSheet();
+  document.getElementById('mov').classList.add('open');
+}
+function refreshCalc(){
+  if(document.getElementById('calcSheet')) document.getElementById('mcon').innerHTML=buildCalcSheet();
+}
+function row(k,v,cls){ return '<tr><td>'+k+'</td><td class="num'+(cls?' '+cls:'')+'">'+v+'</td></tr>'; }
+
+function buildCalcSheet(){
+  var R=getScaledRecipe(), band=effBand(R.efficiency);
+  var bandLbl={good:'GOOD',fair:'FAIR',low:'LOW'}[band];
+
+  var html='<div id="calcSheet">'+
+    '<div style="margin-bottom:4px"><div class="rplbl">ZnO FROM ZINC ASH — PROCESS CALCULATION REPORT</div>'+
+    '<h3 style="font-size:15px;font-weight:700;color:var(--white);margin-top:5px">'+fmtMass(R.feedKg)+' charge · '+fmtNum(R.znoPct,2)+'% ZnO · HCl '+fmtNum(R.hclPct,1)+'%</h3></div>'+
+
+    '<div class="csec"><div class="csec-t">PROCESS INPUTS</div><div class="cinputs">'+
+      '<div class="cin"><span class="cin-l">Zinc ash weight, kg</span>'+
+      '<input type="number" min="0.001" step="any" value="'+fmtNum(R.feedKg,3)+'" oninput="calcSetFeed(this)"/></div>'+
+      '<div class="cin"><span class="cin-l">ZnO content, %</span>'+
+      '<input type="number" min="0" max="100" step="0.01" value="'+fmtNum(R.znoPct,2)+'" oninput="calcSetZno(this)"/></div>'+
+      '<div class="cin"><span class="cin-l">HCl strength, %</span>'+
+      '<input type="number" min="1" max="100" step="0.1" value="'+fmtNum(R.hclPct,1)+'" oninput="calcSetHcl(this)"/></div>'+
+      '<div class="cin"><span class="cin-l">Actual ZnO yield, kg — optional</span>'+
+      '<input type="number" min="0" step="any" value="'+(R.actualKg?fmtNum(R.actualKg,2):'')+'" placeholder="measured" oninput="calcSetActual(this)"/></div>'+
+    '</div></div>'+
+
+    '<div class="csec"><div class="csec-t">PROCESS ANALYSIS</div>'+
+    '<table class="ftable"><tbody>'+
+      row('Zinc ash charged', fmtNum(R.feedKg,2)+' kg')+
+      row('ZnO content', fmtNum(R.znoPct,2)+' %')+
+      row('ZnO available', fmtNum(R.znoFeedKg,2)+' kg')+
+      row('ZnO available', fmtNum(R.znoFeedKg*1000,0)+' g')+
+      row('Moles of ZnO', fmtNum(R.molZn,2)+' mol')+
+    '</tbody></table></div>'+
+
+    '<div class="csec"><div class="csec-t">REAGENTS REQUIRED</div>'+
+    '<table class="ftable"><thead><tr><th>Reagent</th><th class="num">Quantity</th></tr></thead><tbody>'+
+      row('HCl as 100%', fmtNum(R.hclKg,2)+' kg')+
+      row('HCl solution at '+fmtNum(R.hclPct,1)+'%, stoichiometric', fmtNum(R.hclSolnL,2)+' L')+
+      row('HCl solution charged, +'+fmtNum((EXCESS.hcl-1)*100,0)+'% excess', fmtNum(R.hclChargeL,2)+' L','')+
+      row('NaOH solid, stoichiometric', fmtNum(R.naohStoichKg,2)+' kg')+
+      row('NaOH solid charged, +'+fmtNum((EXCESS.naoh-1)*100,0)+'% excess', fmtNum(R.naohFlakesKg,2)+' kg')+
+      row('NaOH as '+PLANT.naohSolnPct+'% solution', fmtNum(R.naohSolnL,2)+' L')+
+      row('H₂O₂ solution', fmtNum(R.h2o2L,2)+' L')+
+      row('Process water, total', fmtNum(R.processWaterL,2)+' L')+
+      row('— leach charge', fmtNum(R.chargeWaterL,2)+' L')+
+      row('— caustic make-up', fmtNum(R.naohSolnL,2)+' L')+
+      row('— cake wash', fmtNum(R.washWaterL,2)+' L')+
+      row('— cleaning and make-up', fmtNum(R.miscWaterL,2)+' L')+
+    '</tbody></table>'+
+    '<div class="cnote">H₂O₂ is charged at the plant ratio of '+fmtNum(PLANT.h2o2LPerKg,4)+' L per kg of ash (216.5 L per 866 kg) and process water at '+fmtNum(PLANT.waterLPerKg,4)+' L per kg (13,995.51 L per 866 kg). Acid solution density is taken as '+PLANT.hclDensity+' kg/L at every strength.</div></div>'+
+
+    '<div class="csec"><div class="csec-t">THEORETICAL PRODUCTS</div>'+
+    '<table class="ftable"><thead><tr><th>Product</th><th class="num">Mass</th></tr></thead><tbody>'+
+      row('ZnCl₂', fmtNum(R.zncl2Kg,2)+' kg')+
+      row('Fe(OH)₃ co-precipitate', fmtNum(R.feoh3Kg,2)+' kg')+
+      row('Zn(OH)₂', fmtNum(R.znoh2Kg,2)+' kg')+
+      row('NaCl', fmtNum(R.naclKg,2)+' kg')+
+      row('Final ZnO, theoretical', fmtNum(R.znoTheoKg,2)+' kg')+
+      row('Final ZnO at '+fmtNum(REC.low*100,1)+'–'+fmtNum(REC.high*100,1)+'% recovery', fmtNum(R.znoLowKg,2)+'–'+fmtNum(R.znoHighKg,2)+' kg')+
+    '</tbody></table>'+
+    '<div class="cnote">Fe(OH)₃ comes from the Fe₂O₃ in the assay and reports to the FP-02 sludge. It is not part of the main zinc chain.</div></div>'+
+
+    '<div class="csec"><div class="csec-t">YIELD EFFICIENCY</div><div class="effwrap">'+
+      '<div class="efftop"><span class="effval">'+fmtNum(R.efficiency,2)+'%</span>'+
+      '<span class="effbadge '+band+'">'+bandLbl+'</span></div>'+
+      '<div class="effbar"><div class="efffill '+band+'" style="width:'+Math.min(100,R.efficiency)+'%"></div></div>'+
+      '<div class="effscale"><span>0%</span><span>75%</span><span>90%</span><span>100%</span></div>'+
+      '<table class="ftable"><tbody>'+
+        row('Theoretical ZnO', fmtNum(R.znoTheoKg,2)+' kg')+
+        row('Actual ZnO', fmtNum(R.actualKg,2)+' kg')+
+        row('Efficiency', fmtNum(R.efficiency,2)+' %','eff-'+band)+
+      '</tbody></table></div></div>'+
+
+    '<div class="csec"><div class="csec-t">CHEMICAL REACTIONS</div>'+
+    '<table class="ftable"><tbody>'+
+      '<tr><td>Acidification</td><td class="num">ZnO + 2HCl → ZnCl₂ + H₂O</td></tr>'+
+      '<tr><td>Precipitation</td><td class="num">ZnCl₂ + 2NaOH → Zn(OH)₂ + 2NaCl</td></tr>'+
+      '<tr><td>Calcination</td><td class="num">Zn(OH)₂ → ZnO + H₂O</td></tr>'+
+    '</tbody></table></div>'+
+
+    buildLogSection()+
+
+    '<div class="cbtns">'+
+      '<button class="cbtn" type="button" onclick="logBatch()">Log batch</button>'+
+      '<button class="cbtn" type="button" onclick="window.print()">Print report</button>'+
+      '<button class="cbtn" type="button" onclick="applyToProtocol()">Apply to the batch sheet</button>'+
+      (BATCH.log.length?'<button class="cbtn ghost" type="button" onclick="clearLog()">Clear log</button>':'')+
+    '</div>'+
+  '</div>';
+  return html;
+}
+
+function buildLogSection(){
+  var html='<div class="csec"><div class="csec-t">SESSION BATCH HISTORY — '+BATCH.log.length+' ENTRIES</div>';
+  if(!BATCH.log.length){
+    return html+'<div class="logempty">Nothing logged yet. Press “Log batch” to save the current calculation.</div></div>';
+  }
+  html+='<table class="ftable"><thead><tr><th>Batch</th><th>Time</th><th class="num">Ash kg</th><th class="num">ZnO%</th>'+
+        '<th class="num">HCl%</th><th class="num">Theory kg</th><th class="num">Actual kg</th><th class="num">Eff.</th>'+
+        '<th class="num">HCl L</th><th class="num">NaOH kg</th><th class="num">H₂O₂ L</th><th class="num">Water L</th><th></th></tr></thead><tbody>';
+  BATCH.log.forEach(function(e,i){
+    var b=effBand(e.eff);
+    html+='<tr><td><span class="logname" onclick="renameBatch('+i+')">'+e.name+'</span></td><td>'+e.time+'</td>'+
+      '<td class="num">'+fmtNum(e.feedKg,1)+'</td><td class="num">'+fmtNum(e.znoPct,2)+'</td>'+
+      '<td class="num">'+fmtNum(e.hclPct,1)+'</td><td class="num">'+fmtNum(e.theoKg,2)+'</td>'+
+      '<td class="num">'+(e.actualKg?fmtNum(e.actualKg,2):'—')+'</td>'+
+      '<td class="num eff-'+b+'">'+(e.actualKg?fmtNum(e.eff,1)+'%':'—')+'</td>'+
+      '<td class="num">'+fmtNum(e.hclL,1)+'</td><td class="num">'+fmtNum(e.naohKg,1)+'</td>'+
+      '<td class="num">'+fmtNum(e.h2o2L,1)+'</td><td class="num">'+fmtNum(e.waterL,0)+'</td>'+
+      '<td class="num"><button class="logload" type="button" onclick="loadBatch('+i+')">Load</button></td></tr>';
+  });
+  return html+'</tbody></table><div class="cnote">Click a batch name to rename it. Load restores its inputs to the calculator. Efficiency = actual ÷ theoretical × 100, green at 90% and above, amber at 75% and above. The log is held for this session only and is cleared when the page reloads.</div></div>';
+}
+
+function calcSetFeed(inp){ var v=parseFloat(inp.value); if(isFinite(v)&&v>0){BATCH.feedKg=v; syncAll();} }
+function calcSetZno(inp){ var v=parseFloat(inp.value); if(isFinite(v)&&v>=0){BATCH.znoPct=Math.min(100,v); if(BATCH.useCustomXrf)BATCH.xrf.ZnO=BATCH.znoPct; syncAll();} }
+function calcSetHcl(inp){ var v=parseFloat(inp.value); if(isFinite(v)&&v>0){BATCH.hclStrength=Math.min(100,v); syncAll();} }
+function calcSetActual(inp){ BATCH.actualKg=parseFloat(inp.value)||0; syncEffOnly(); }
+
+/* update the numbers without rebuilding the sheet, so focus is not lost while typing */
+function syncAll(){
+  updateBadges();
+  var R=getScaledRecipe();
+  var sheet=document.getElementById('calcSheet');
+  if(sheet){
+    var secs=sheet.querySelectorAll('.csec');
+    /* rebuild everything except the input block */
+    for(var i=1;i<secs.length;i++) secs[i].parentNode.removeChild(secs[i]);
+    var btns=sheet.querySelector('.cbtns'); if(btns) btns.parentNode.removeChild(btns);
+    sheet.insertAdjacentHTML('beforeend', calcTail(R));
+  }
+}
+function syncEffOnly(){ syncAll(); }
+function calcTail(R){
+  var tmp=document.createElement('div');
+  tmp.innerHTML=buildCalcSheet();
+  var inner=tmp.querySelector('#calcSheet');
+  var secs=inner.querySelectorAll('.csec');
+  var out='';
+  for(var i=1;i<secs.length;i++) out+=secs[i].outerHTML;
+  var b=inner.querySelector('.cbtns');
+  return out+(b?b.outerHTML:'');
+}
+
+function logBatch(){
+  var R=getScaledRecipe();
+  var d=new Date();
+  BATCH.log.unshift({
+    name:'BATCH-'+fmtNum(R.feedKg,0)+'KG-'+(BATCH.log.length+1),
+    time:pad(d.getHours())+':'+pad(d.getMinutes()),
+    feedKg:R.feedKg, znoPct:R.znoPct, hclPct:R.hclPct,
+    theoKg:R.znoTheoKg, actualKg:R.actualKg, eff:R.efficiency,
+    hclL:R.hclChargeL, naohKg:R.naohFlakesKg, h2o2L:R.h2o2L, waterL:R.processWaterL
+  });
+  openCalc();
+}
+function renameBatch(i){
+  var n=window.prompt('Batch name', BATCH.log[i].name);
+  if(n&&n.trim()){ BATCH.log[i].name=n.trim(); openCalc(); }
+}
+function loadBatch(i){
+  var e=BATCH.log[i];
+  BATCH.feedKg=e.feedKg; BATCH.znoPct=e.znoPct; BATCH.hclStrength=e.hclPct; BATCH.actualKg=e.actualKg;
+  if(BATCH.useCustomXrf) BATCH.xrf.ZnO=e.znoPct;
+  updateBadges(); openCalc();
+}
+function clearLog(){
+  if(window.confirm('Clear all '+BATCH.log.length+' logged batches?')){ BATCH.log=[]; openCalc(); }
+}
+/* push the calculator inputs into the stage-by-stage batch sheet */
+function applyToProtocol(){
+  closeM();
+  clearAllTimers();
+  BATCH.configured=true;
+  STEPS=buildSteps();
+  resetStepState();
+  S.started=false; S.current=0;
+  setSt('READY','');
+  updateBadges(); renderPL(); renderSidebar(); renderCenter(); renderRP(); updatePipe();
+}
+
+function closeM(){ document.getElementById('mov').classList.remove('open'); }
+function closeMOuter(e){ if(e.target===document.getElementById('mov')) closeM(); }
+</script>
+</body>
+</html>
